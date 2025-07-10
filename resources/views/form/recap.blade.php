@@ -175,5 +175,23 @@
                 <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] }}</textarea>
             </div>
         </div>
+
+        <form action="{{ route('export') }}" method="GET">
+            <br>
+            <div class="row mt-5 mb-5">
+                <div style="display:none">
+                    <input type="text" name="website" value="">
+                </div>
+                <div class="col-10">
+                    <input type="checkbox" name="validation" id="validation" required><label for="validation">&ensp;<b>Je
+                            certifie l'exactitude des données transmises. </b><span class="required-star">*</span></label>
+                </div>
+                <div class="col-2 d-flex justify-content-end">
+                    <button class="btn btn-outline-info" type="submit">Envoyer les
+                        données</button>
+                </div>
+            </div>
+        </form>
+
     </div>
 @endsection
