@@ -176,7 +176,7 @@
             </div>
         </div>
 
-        <form action="{{ route('export') }}" method="GET">
+        <form action="{{ route('form.export') }}" method="GET">
             <br>
             <div class="row mt-5 mb-5">
                 <div style="display:none">
