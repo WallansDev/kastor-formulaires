@@ -26,7 +26,7 @@
                 <div class="col-12">
                     <label for="infos_remarques" class="form-label">Informations et/ou remarques supplémentaires ?</label>
                     <div class="input-group mb-3">
-                        <textarea class="form-control" name="infos_remarques" id="infos_remarques" cols="600" rows="5">{{ old('infos_remarques', $data['infos_remarques'] ?? '') }}</textarea>
+                        <textarea class="form-control" name="infos_remarques" id="infos_remarques" cols="600" rows="5">{{ old('infos_remarques', $data['infos_remarques'] ?? ' ') }}</textarea>
                     </div>
                 </div>
             </div>

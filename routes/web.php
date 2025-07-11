@@ -32,10 +32,15 @@ Route::post('/formulaire/informations-et-remarques', [MultiStepFormController::c
 Route::get('/formulaire/recap', [MultiStepFormController::class, 'recap'])->name('form.recap');
 Route::post('/formulaire/recap', [MultiStepFormController::class, 'postRecap']);
 
+
+Route::get('/formulaire/export', [MultiStepFormController::class, 'export'])->name('form.export');
+
+
 Route::post('/formulaire/reset', function () {
     session()->flush();
     return redirect()->route('form.pbx-info')->with('success', 'Session réinitialisée.');
 })->name('form.reset');
 
 // Debug
-Route::view('/session', 'debug.session')->name('debug.session');
+Route::view('/formulaire/session', 'debug.session')->name('debug.session');
+Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');

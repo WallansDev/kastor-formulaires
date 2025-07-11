@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MailerFormulaire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use Illuminate\Support\Facades\File;
 
 class MultiStepFormController extends Controller
 {
@@ -325,7 +331,7 @@ class MultiStepFormController extends Controller
     public function postInfos(Request $request)
     {
         $validated = $request->validate([
-            'infos_remarques' => 'required|string',
+            'infos_remarques' => 'nullable|string',
         ]);
 
         Session::put('form.infos_remarques', $validated['infos_remarques']);
@@ -367,5 +373,99 @@ class MultiStepFormController extends Controller
         } catch (Throwable $th) {
             return redirect()->back()->with('error', 'Erreur lors du vidage de la session.');
         }
+    }
+
+    public function export(Request $request)
+    {
+        // Récupère les données depuis la session
+        $extensions = session('form.extensions', []);
+        $portes = session('form.numeros.portes', []);
+        $urlPbx = session('form.url_pbx', '');
+        $customer_name = session('form.customer_name', '');
+        $callGroups = session('form.callgroups', []);
+        $svi_options = session('form.svi_options');
+        $timetable = session('form.timetable_ho');
+        $dialplan = session('form.dialplan');
+        $infos_remarques = session('form.infos_remarques');
+
+        if (!empty($request->input('website'))) {
+            // Optionnel : logger ou bloquer l'IP
+            abort(403, 'Spam détecté.');
+        }
+        // dd($extensions, $portes, $customer_name, $urlPbx, $callGroups, $svi_options, $timetable, $dialplan, $infos_remarques);
+
+        // Création du fichier Excel
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = ['Id', 'SourceId', 'Type', 'Name', 'Login', 'Phone', 'Fax', 'OfficePhone', 'Email', 'Mobile', 'Dialplan', 'FaxDialplan', 'Lang', 'Group', 'Department', 'ImageUrl', 'Password', 'SipPassword', 'LicenseType', 'PBX'];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+
+        $usedIds = [];
+
+        foreach ($extensions as $ext) {
+            $prefix = substr($ext['extension'], 0, 3);
+            $randomLength = 7 - strlen($prefix);
+
+            // Boucle jusqu'à obtenir un ID unique
+            do {
+                $randomPart = str_pad(rand(0, pow(10, $randomLength) - 1), $randomLength, '0', STR_PAD_LEFT);
+                $result = $prefix . $randomPart;
+            } while (in_array($result, $usedIds));
+
+            $usedIds[] = $result; // Marque l'ID comme utilisé
+
+            // $sheet->setCellValue('A' . $row, $result . ',"' . $ext['extension'] . '","user","' . $ext['nom'] . '",,"' . $ext['extension'] . '",,"' . $ext['numPorte'] . '",,,"users","users","' . $ext['language'] . '","Default",,,,,"' . ($ext['licence'] ?? '') . '",');
+            // $row++;
+            $data = [$result, $ext['extension'] ?? '', 'user', $ext['name'] ?? '', '', $ext['extension'] ?? '', '', $ext['numPorte'] ?? '', $ext['email'] ?? '', '', 'users', 'users', $ext['language'] ?? '', 'Default', '', '', '', '', $ext['licence'] ?? '', ''];
+
+            $col = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($col . $row, $value);
+                $col++;
+            }
+        }
+
+        $filename = $urlPbx . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $directory = storage_path('app/temp');
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $path = storage_path("app/temp/$filename");
+        // $writer = new Xlsx($spreadsheet);
+        $writer = new Csv($spreadsheet);
+
+        // Optionnel : configuration du séparateur (virgule par défaut, mais tu peux le changer)
+        $writer->setDelimiter(',');
+        // Tu peux aussi définir l’enclosure si nécessaire
+        $writer->setEnclosure('"');
+        $writer->setLineEnding("\r\n"); // Pour compatibilité Windows
+        $writer->setSheetIndex(0); // Assure que c’est bien la première feuille
+
+        $writer->save($path);
+
+        Mail::to('timothe.vaquie1@gmail.com')->send(
+            new MailerFormulaire([
+                'customer_name' => $customer_name,
+                'urlPbx' => $urlPbx,
+                'portes' => $portes,
+                'extensions' => $extensions,
+                'callGroups' => $callGroups,
+                'timetable' => $timetable,
+                'svi_options' => $svi_options,
+                'dialplan' => $dialplan,
+                'infos_remarques' => $infos_remarques,
+            ]),
+        );
+
+        unlink($path);
+
+        // $this->sessionDrop($request);
+
+        return redirect()->route('home')->with('success', 'Mail envoyé avec pièce jointe.');
     }
 }

@@ -34,7 +34,6 @@
         </div>
 
         {{-- Informations client --}}
-        Nom client
         <div class="row mt-5">
             <div class="col-12">
                 <h4>Informations du client</h4>
@@ -112,28 +111,30 @@
             <div class="col-12">
                 <h4>Groupe(s) d'appel</h4>
                 <br>
-                @foreach ($data['callgroups'] as $index => $callgroup)
-                    Nom du groupe : {{ $callgroup['name'] }}
-                    <br>
-                    Type du groupe : {{ $callgroup['type'] }}
-                    <br>
-                    Extensions associées :
-                    @foreach ($callgroup['ext'] as $extension)
-                        @if ($callgroup['type'] === 'all_10')
-                            @if (!$loop->last)
-                                +
+                @if (!session('form.callgroups'))
+                    <h6>Non</h6>
+                @else
+                    @foreach ($data['callgroups'] as $index => $callgroup)
+                        Nom du groupe : {{ $callgroup['name'] }}
+                        <br>
+                        Type du groupe : {{ $callgroup['type'] }}
+                        <br>
+                        Extensions associées :
+                        @foreach ($callgroup['ext'] as $extension)
+                            @if ($callgroup['type'] === 'all_10')
+                                {{ $extension }}
+                                @if (!$loop->last)
+                                    +
+                                @endif
+                            @elseif ($callgroup['type'] === 'linear')
+                                {{ $extension }}@if (!$loop->last)
+                                    ->
+                                @endif
                             @endif
-                            {{ $extension }}@if (!$loop->last)
-                                +
-                            @endif
-                        @elseif ($callgroup['type'] === 'linear')
-                            {{ $extension }}@if (!$loop->last)
-                                ->
-                            @endif
-                        @endif
+                        @endforeach
+                        <br><br>
                     @endforeach
-                    <br><br>
-                @endforeach
+                @endif
             </div>
         </div>
 
@@ -142,7 +143,7 @@
             <div class="col-12">
                 <h4>Heure(s) d'ouverture (H.O.)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['timetable_ho'] }}</textarea>
+                <textarea class="form-control" cols="600" rows="5">{{ $data['timetable_ho'] ?: 'non' }}</textarea>
             </div>
         </div>
 
@@ -151,10 +152,14 @@
             <div class="col-12">
                 <h4>SVI</h4>
                 <br>
-                @foreach ($data['svi_options'] as $option)
-                    {{ 'Choix : ' . $option['ordre'] . ' = ' . $option['nom'] }}
-                    <br>
-                @endforeach
+                @if (!session('form.svi_options'))
+                    <h6>Pas de svi</h6>
+                @else
+                    @foreach ($data['svi_options'] as $option)
+                        {{ 'Choix : ' . $option['ordre'] . ' = ' . $option['nom'] }}
+                        <br>
+                    @endforeach
+                @endif
             </div>
         </div>
 
@@ -163,7 +168,7 @@
             <div class="col-12">
                 <h4>Dialplan(s) :</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['dialplan'] }}</textarea>
+                <textarea class="form-control" cols="600" rows="5">{{ $data['dialplan'] ?: 'non' }}</textarea>
             </div>
         </div>
 
@@ -172,7 +177,7 @@
             <div class="col-12">
                 <h4>Information(s) supplémentaire(s) et remarque(s)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] }}</textarea>
+                <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: 'non' }}</textarea>
             </div>
         </div>
 
