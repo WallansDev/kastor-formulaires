@@ -4,13 +4,27 @@
 
 @section('content')
     <div class="container">
-
-        {{-- DEBUG --}}
-        <a href="{{ route('debug.session') }}">Dump Session</a>
-
         <div class="row">
+            <div class="col-12 mt-1">
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+            </div>
             <form action="{{ route('form.reset') }}" method="POST">
                 @csrf
+                <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>
@@ -47,7 +61,7 @@
                         <option value="" disabled selected>-- Choisir un type --</option>
                         <option value="all_10">Appeler les 10 (all_10)</option>
                         <option value="linear">Linéaire (linear)</option>
-                        <option value="round_robin">Tourniquet (round_robin)</option>
+                        <option value="round_robin">À tour de rôle (round_robin)</option>
                     </select>
                     <button class="btn btn-primary" style="float:right" name="action_type" value="add_group"><i
                             class="fa fa-plus"></i></button>

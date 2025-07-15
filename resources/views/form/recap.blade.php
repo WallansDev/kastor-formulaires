@@ -17,13 +17,27 @@
 
 @section('content')
     <div class="container">
-
-        {{-- DEBUG --}}
-        <a href="{{ route('debug.session') }}">Dump Session</a>
-
         <div class="row">
+            <div class="col-12 mt-1">
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+            </div>
             <form action="{{ route('form.reset') }}" method="POST">
                 @csrf
+                <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>
@@ -33,10 +47,20 @@
             </div>
         </div>
 
+        {{-- Informations revendeur --}}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4>Information(s) générale(s)</h4>
+                <br>
+                <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?: '' }}
+                <br>
+            </div>
+        </div>
+
         {{-- Informations client --}}
         <div class="row mt-5">
             <div class="col-12">
-                <h4>Informations du client</h4>
+                <h4>Information(s) IPBX</h4>
                 <br>
                 <b>Nom du client :</b> {{ $data['customer_name'] ?: '' }}
                 <br>
@@ -83,8 +107,8 @@
                     @foreach ($data['extensions'] as $index => $extension)
                         <tr>
 
-                            <td><input type="number" value="{{ $extension['extension'] }}" class="no-disabled form-control"
-                                    disabled></td>
+                            <td><input type="number" value="{{ $extension['extension'] }}"
+                                    class="no-disabled form-control" disabled></td>
 
                             <td><input type="text" value="{{ $extension['name'] }}" class="form-control no-disabled"
                                     disabled></td>
@@ -112,7 +136,7 @@
                 <h4>Groupe(s) d'appel</h4>
                 <br>
                 @if (!session('form.callgroups'))
-                    <h6>Non</h6>
+                    <h6>Pas de groupe(s) d'appel</h6>
                 @else
                     @foreach ($data['callgroups'] as $index => $callgroup)
                         Nom du groupe : {{ $callgroup['name'] }}
@@ -143,7 +167,7 @@
             <div class="col-12">
                 <h4>Heure(s) d'ouverture (H.O.)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['timetable_ho'] ?: 'non' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['timetable_ho'] ?: 'non' }}</textarea>
             </div>
         </div>
 
@@ -168,7 +192,7 @@
             <div class="col-12">
                 <h4>Dialplan(s) :</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['dialplan'] ?: 'non' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?: 'non' }}</textarea>
             </div>
         </div>
 
@@ -177,7 +201,11 @@
             <div class="col-12">
                 <h4>Information(s) supplémentaire(s) et remarque(s)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: 'non' }}</textarea>
+                @if (!session('form.infos_remarques'))
+                    <textarea class="form-control" cols="600" rows="5" disabled></textarea>
+                @else
+                    <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: 'non' }}</textarea>
+                @endif
             </div>
         </div>
 

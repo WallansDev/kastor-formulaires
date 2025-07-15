@@ -19,9 +19,10 @@ class MailerFormulaire extends Mailable
 
     public function build()
     {
-        $email = $this->subject("Nouveau IPBX ICALL - ". $this->data['customer_name'] . " | https://" . $this->data['urlPbx']. ".wildixin.com")
+        $email = $this->subject("Nouveau IPBX - ". $this->data['customer_name'] . " | https://" . $this->data['urlPbx']. ".wildixin.com")
             ->view('emails.contact')
             ->with([
+                'reseller_name' => $this->data['reseller_name'],
                 'customer_name' => $this->data['customer_name'],
                 'urlPbx' => $this->data['urlPbx'],
                 'portes' => $this->data['portes'],

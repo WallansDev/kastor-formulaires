@@ -24,10 +24,12 @@ class MultiStepFormController extends Controller
     public function postPbxInfo(Request $request)
     {
         $validated = $request->validate([
+            'reseller_name' => 'required|string',
             'customer_name' => 'required|string',
             'url_pbx' => 'required|string',
         ]);
 
+        Session::put('form.reseller_name', $validated['reseller_name']);
         Session::put('form.customer_name', $validated['customer_name']);
         Session::put('form.url_pbx', str_replace(' ', '', $validated['url_pbx']));
 
@@ -39,6 +41,9 @@ class MultiStepFormController extends Controller
     {
         $dataForm = Session::get('form', []);
         $data['portes'] = session('form.numeros.portes', []);
+        if (!session('form.url_pbx')) {
+            return redirect()->route('form.pbx-info')->with('error', 'Des informations sont manquantes pour continuer.');
+        }
         return view('form.num_list', compact('data', 'dataForm'));
     }
 
@@ -93,18 +98,24 @@ class MultiStepFormController extends Controller
             );
 
             $portes = session()->get('form.numeros.portes', []);
-            $portes_exists = collect($portes)->pluck('numero')->contains($validated['numero_provisoire']);
+
+            // Vérifier si ce numéro existe déjà dans les numéros portés ou en tant que provisoire
+            $portes_exists = collect($portes)->pluck('numero')->contains($validated['numero_provisoire']) || collect($portes)->pluck('provisoire')->contains($validated['numero_provisoire']);
+
+            if ($portes_exists) {
+                return back()
+                    ->withErrors(['numero_provisoire' => 'Ce numéro est déjà inscrit comme numéro porté/provisoire.'])
+                    ->withInput();
+            }
 
             foreach ($portes as &$porte) {
-                if ($portes_exists) {
-                    return back()
-                        ->withErrors(['numero_provisoire' => 'Ce numéro est déjà inscrit comme numéro portés/créés.'])
-                        ->withInput();
-                } else {
+                if ($porte['numero'] === $validated['porte_selectionne']) {
                     $porte['provisoire'] = $validated['numero_provisoire'];
                     break;
                 }
             }
+
+            session()->put('form.numeros.portes', $portes);
         }
 
         // Suppression numéro porté ou provisoire
@@ -135,8 +146,8 @@ class MultiStepFormController extends Controller
         if (empty($portes)) {
             return redirect()
                 ->route('form.num-list')
-                ->withErrors([
-                    'access_denied' => 'Refusé : Vous devez d’abord ajouter au moins un numéro porté.',
+                ->with([
+                    'error' => 'Vous devez au minimum renseigner un numéro porté/créé.',
                 ]);
         }
 
@@ -165,10 +176,9 @@ class MultiStepFormController extends Controller
             return redirect()->back()->with('success', 'Extension supprimée.');
         }
 
-        // Sinon, on traite l'ajout / mise à jour normale
         $validated = $request->validate([
             'extensions' => 'required|array',
-            'extensions.*.extension' => 'required|numeric',
+            'extensions.*.extension' => 'nullable|numeric',
             'extensions.*.name' => 'required|string',
             'extensions.*.email' => 'nullable|string',
             'extensions.*.numPorte' => 'required|string',
@@ -176,10 +186,38 @@ class MultiStepFormController extends Controller
             'extensions.*.licence' => 'required|string',
         ]);
 
-        // Vérification des doublons
         $extensionNums = array_column($validated['extensions'], 'extension');
+
+        foreach ($extensionNums as $extensionNum) {
+            // Interdiction 2 chiffres numéros d'urgence
+            if (strlen($extensionNum) == 2 && in_array($extensionNum, ['15', '17', '18'])) {
+                return back()->with(['error' => "Numéro d'extension invalide, " . $extensionNum . " est un numéro d'urgence."]);
+            }
+
+            // Interdiction 3 chiffres plage 100 - 199
+            if (strlen($extensionNum) == 3 && $extensionNum >= 100 && $extensionNum <= 199) {
+                return back()->with(['error' => "Numéro d'extension invalide, plage 100 à 199 réservée"]);
+            }
+
+            // Interdiction 4 plage 3XXX
+            if (strlen($extensionNum) == 4 && $extensionNum >= 3000 && $extensionNum <= 3999) {
+                return back()->with(['error' => "Numéro d'extension invalide, plage 3000 à 3999 réservée"]);
+            }
+
+            // Interdiction 4 plage 3XXX
+            if ($extensionNum == 116000) {
+                return back()->with(['error' => "Numéro d'extension invalide, 116000 est réservée"]);
+            }
+
+            // Interdiction 2222
+            if ($extensionNum == 2222) {
+                return back()->with(['error' => "Numéro d'extension invalide, 2222 est réservé"]);
+            }
+        }
+
+        // Vérification des doublons
         if (count($extensionNums) !== count(array_unique($extensionNums))) {
-            return back()->withErrors(['extensions.unique' => 'Deux extensions ou plus ont le même numéro.']);
+            return back()->with(['error' => 'Deux extensions ou plus ont le même numéro d\'extension.']);
         }
 
         session()->put('form.extensions', $validated['extensions']);
@@ -193,6 +231,9 @@ class MultiStepFormController extends Controller
         $extensions = session('form.extensions', []);
         $callGroups = session('form.callgroups', []);
 
+        if (empty($extensions)) {
+            return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
         return view('form.call_group', compact('extensions', 'callGroups'));
     }
 
@@ -255,6 +296,7 @@ class MultiStepFormController extends Controller
     public function timetable()
     {
         $data = Session::get('form', []);
+
         return view('form.timetable', compact('data'));
     }
 
@@ -266,7 +308,7 @@ class MultiStepFormController extends Controller
 
         Session::put('form.timetable_ho', $validated['timetable_ho']);
 
-        return redirect()->route('form.dialplan');
+        return redirect()->route('form.svi');
     }
 
     // Dialplan
@@ -284,13 +326,18 @@ class MultiStepFormController extends Controller
 
         Session::put('form.dialplan', $validated['dialplan']);
 
-        return redirect()->route('form.svi');
+        return redirect()->route('form.infos');
     }
 
     // SVI
     public function svi()
     {
         $data = Session::get('form', []);
+
+        if (!session('form.timetable_ho')) {
+            return back()->with('error', "Horaires d'ouverture obligatoire.");
+        }
+
         return view('form.svi', compact('data'));
     }
 
@@ -325,6 +372,11 @@ class MultiStepFormController extends Controller
     public function infos()
     {
         $data = Session::get('form', []);
+
+        if (!session('form.dialplan')) {
+            return back()->with('error', 'Dialplan obligatoire.');
+        }
+
         return view('form.infos', compact('data'));
     }
 
@@ -380,8 +432,9 @@ class MultiStepFormController extends Controller
         // Récupère les données depuis la session
         $extensions = session('form.extensions', []);
         $portes = session('form.numeros.portes', []);
-        $urlPbx = session('form.url_pbx', '');
-        $customer_name = session('form.customer_name', '');
+        $urlPbx = session('form.url_pbx');
+        $reseller_name = session('form.reseller_name');
+        $customer_name = session('form.customer_name');
         $callGroups = session('form.callgroups', []);
         $svi_options = session('form.svi_options');
         $timetable = session('form.timetable_ho');
@@ -392,7 +445,6 @@ class MultiStepFormController extends Controller
             // Optionnel : logger ou bloquer l'IP
             abort(403, 'Spam détecté.');
         }
-        // dd($extensions, $portes, $customer_name, $urlPbx, $callGroups, $svi_options, $timetable, $dialplan, $infos_remarques);
 
         // Création du fichier Excel
         $spreadsheet = new Spreadsheet();
@@ -417,15 +469,20 @@ class MultiStepFormController extends Controller
 
             $usedIds[] = $result; // Marque l'ID comme utilisé
 
-            // $sheet->setCellValue('A' . $row, $result . ',"' . $ext['extension'] . '","user","' . $ext['nom'] . '",,"' . $ext['extension'] . '",,"' . $ext['numPorte'] . '",,,"users","users","' . $ext['language'] . '","Default",,,,,"' . ($ext['licence'] ?? '') . '",');
-            // $row++;
-            $data = [$result, $ext['extension'] ?? '', 'user', $ext['name'] ?? '', '', $ext['extension'] ?? '', '', $ext['numPorte'] ?? '', $ext['email'] ?? '', '', 'users', 'users', $ext['language'] ?? '', 'Default', '', '', '', '', $ext['licence'] ?? '', ''];
+            if ($ext['licence'] == 'service') {
+                $ext['licence'] = 'pbxService';
+            }
+
+            // dd($ext['numPorte']);
+
+            $data = [$result, $ext['extension'] ?? '', 'user', $ext['name'] ?? '', '', $ext['extension'] ?? '', '', '="' . $ext['numPorte'] ?? '', $ext['email'] ?? '', '', 'users', 'users', $ext['language'] ?? '', 'Default', '', '', '', '', $ext['licence'] ?? '', ''];
 
             $col = 'A';
             foreach ($data as $value) {
                 $sheet->setCellValue($col . $row, $value);
                 $col++;
             }
+            $row++;
         }
 
         $filename = $urlPbx . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
@@ -448,8 +505,11 @@ class MultiStepFormController extends Controller
 
         $writer->save($path);
 
-        Mail::to('timothe.vaquie1@gmail.com')->send(
+        // Mail::to('t.vaquie@kiwi.tel')->send(
+            Mail::to('arnaud@kiwi.tel')->send(
+            // Mail::to('timothe.vaquie1@gmail.com')->send(
             new MailerFormulaire([
+                'reseller_name' => $reseller_name,
                 'customer_name' => $customer_name,
                 'urlPbx' => $urlPbx,
                 'portes' => $portes,
@@ -459,12 +519,13 @@ class MultiStepFormController extends Controller
                 'svi_options' => $svi_options,
                 'dialplan' => $dialplan,
                 'infos_remarques' => $infos_remarques,
+                'fichier' => $path,
             ]),
         );
 
         unlink($path);
 
-        // $this->sessionDrop($request);
+        $this->sessionDrop($request);
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièce jointe.');
     }

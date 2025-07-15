@@ -20,11 +20,11 @@ Route::post('/formulaire/call-groups', [MultiStepFormController::class, 'postCal
 Route::get('/formulaire/timetable', [MultiStepFormController::class, 'timetable'])->name('form.timetable');
 Route::post('/formulaire/timetable', [MultiStepFormController::class, 'postTimetable']);
 
-Route::get('/formulaire/dialplan', [MultiStepFormController::class, 'dialplan'])->name('form.dialplan');
-Route::post('/formulaire/dialplan', [MultiStepFormController::class, 'postDialplan']);
-
 Route::get('/formulaire/svi', [MultiStepFormController::class, 'svi'])->name('form.svi');
 Route::post('/formulaire/svi', [MultiStepFormController::class, 'postSvi']);
+
+Route::get('/formulaire/dialplan', [MultiStepFormController::class, 'dialplan'])->name('form.dialplan');
+Route::post('/formulaire/dialplan', [MultiStepFormController::class, 'postDialplan']);
 
 Route::get('/formulaire/informations-et-remarques', [MultiStepFormController::class, 'infos'])->name('form.infos');
 Route::post('/formulaire/informations-et-remarques', [MultiStepFormController::class, 'postInfos']);
@@ -38,9 +38,9 @@ Route::get('/formulaire/export', [MultiStepFormController::class, 'export'])->na
 
 Route::post('/formulaire/reset', function () {
     session()->flush();
-    return redirect()->route('form.pbx-info')->with('success', 'Session réinitialisée.');
+    return redirect()->route('form.pbx-info')->with('info', 'Session réinitialisée.');
 })->name('form.reset');
 
 // Debug
 Route::view('/formulaire/session', 'debug.session')->name('debug.session');
-Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');
+// Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');

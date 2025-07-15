@@ -10,6 +10,10 @@
     $infos_remarques = session('form.infos_remarques');
 @endphp --}}
 
+<h3>Information(s) générale(s)</h3>
+<strong style="font-size: 13px">Nom du revendeur :</strong> {{ $reseller_name }}
+<br><br>
+
 <h3>Information(s) du client :</h3>
 <strong style="font-size: 13px">Nom du client :</strong> {{ $customer_name }}
 <br>
@@ -80,35 +84,39 @@
 <br><br>
 
 <h3>Groupe(s) d'appel :</h3>
-@foreach ($callGroups as $index => $callgroup)
-    Nom du groupe : {{ $callgroup['name'] }}
-    <br>
-    Type du groupe : {{ $callgroup['type'] }}
-    <br>
-    Extensions associées :
-    @foreach ($callgroup['ext'] as $extension)
-        @if ($callgroup['type'] === 'all_10')
-            {{ $extension }}
-            @if (!$loop->last)
-                +
+@if (!$callGroups || is_null($callGroups))
+    Pas de groupe d'appel
+@else
+    @foreach ($callGroups as $index => $callgroup)
+        Nom du groupe : {{ $callgroup['name'] }}
+        <br>
+        Type du groupe : {{ $callgroup['type'] }}
+        <br>
+        Extensions associées :
+        @foreach ($callgroup['ext'] as $extension)
+            @if ($callgroup['type'] === 'all_10')
+                {{ $extension }}
+                @if (!$loop->last)
+                    +
+                @endif
+            @elseif ($callgroup['type'] === 'linear')
+                {{ $extension }}@if (!$loop->last)
+                    ->
+                @endif
             @endif
-        @elseif ($callgroup['type'] === 'linear')
-            {{ $extension }}@if (!$loop->last)
-                ->
-            @endif
+        @endforeach
+        @if (!$loop->last)
+            <br><br>
         @endif
     @endforeach
-    @if (!$loop->last)
-        <br><br>
-    @endif
-@endforeach
+@endif
 <br><br>
 
 <h3>Heure(s) d'ouverture (H.O.)</h3>
 @if (!$timetable_ho || is_null($timetable_ho))
-Pas d'horaires d'ouverture.
+    Pas d'horaires d'ouverture.
 @else
-<textarea class="form-control" cols="100" rows="5" disabled>{{ $timetable_ho}}</textarea>
+    <textarea class="form-control" cols="100" rows="5" disabled>{{ $timetable_ho }}</textarea>
 @endif
 <br><br>
 
@@ -129,7 +137,7 @@ Pas d'horaires d'ouverture.
 @if (!$dialplan || is_null($timetable_ho))
     Pas de dialplan.
 @else
-<textarea class="form-control" cols="100" rows="5" disabled>{{ $dialplan }}</textarea>
+    <textarea class="form-control" cols="100" rows="5" disabled>{{ $dialplan }}</textarea>
 @endif
 <br><br>
 
@@ -137,5 +145,5 @@ Pas d'horaires d'ouverture.
 @if (!$infos_remarques || is_null($infos_remarques))
     Pas d'informations ou remarques supplémeentaires.
 @else
-<textarea class="form-control" cols="100" rows="5" disabled>{{ $infos_remarques }}</textarea>
+    <textarea class="form-control" cols="100" rows="5" disabled>{{ $infos_remarques }}</textarea>
 @endif

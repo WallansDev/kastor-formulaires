@@ -4,17 +4,27 @@
 
 @section('content')
     <div class="container">
-
-        {{-- DEBUG --}}
-        <a href="{{ route('debug.session') }}">Dump Session</a>
-
-        @error('access_denied')
-            <div class="text-danger">{{ $message }}</div>
-        @enderror
-
         <div class="row">
+            <div class="col-12 mt-1">
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+            </div>
             <form action="{{ route('form.reset') }}" method="POST">
                 @csrf
+                <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>

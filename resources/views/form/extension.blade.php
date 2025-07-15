@@ -4,25 +4,37 @@
 
 @section('content')
     <div class="container">
-
-        {{-- DEBUG --}}
-        <a href="{{ route('debug.session') }}">Dump Session</a>
-
         <div class="row">
+            <div class="col-12 mt-1">
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                @error('extensions.unique')
+                    <div class="text-danger">Numéro d'extension déjà existant.</div>
+                @enderror
+            </div>
             <form action="{{ route('form.reset') }}" method="POST">
                 @csrf
+                <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>
-
             <div class=" text-center col-12 mt-3">
                 @include('form.header')
             </div>
         </div>
-
-        @error('extensions.unique')
-            <div class="text-danger">Numéro d'extension déjà existant.</div>
-        @enderror
 
         <h4 class="mt-4">Liste des extensions :</h4>
         <form action="{{ route('form.extension') }}" method="POST">
@@ -30,12 +42,24 @@
             <button type="button" class="btn-add mb-2" onclick="ajouterExt()"><i class="fa fa-plus"
                     aria-hidden="true"></i></button>
             <button type="submit" class="btn-save mb-2"><i class="fa fa-save" aria-hidden="true"></i></button>
-
+            <br>
+            <small><i>NB : Sauvegarder les extensions avec le bouton disquette bleu avant de cliquer sur
+                    continuer.</i></small>
+            <br><br>
+            <small><i><u>Numéros indisponibles :</u></i>
+                <br>
+                <ul>
+                    <li>2 chiffres : 15, 17, 18.</li>
+                    <li>3 chiffres : 100 à 199 (inclus).</li>
+                    <li>4 chiffres : 3000 à 3999 (inclus) & 2222.</li>
+                    <li>6 chiffres : 116000.</li>
+                </ul>
+            </small>
             <div class="row mt-3">
                 <table class="table table-hover table-bordered table-striped">
                     <thead style="text-align: center">
                         <tr>
-                            <th>#Extension <span class="required-star">*</span></th>
+                            <th>#Extension</th>
                             <th>Nom affiché <span class="required-star">*</span></th>
                             <th>Email</th>
                             <th>#Présenté (appel sortant) <span class="required-star">*</span></th>
@@ -53,7 +77,7 @@
 
                                 <td><input type="number" name="extensions[{{ $index }}][extension]"
                                         value="{{ old('extensions.' . $index . '.extension', $ext['extension']) }}"
-                                        class="form-control" required></td>
+                                        class="form-control"></td>
 
                                 <td><input type="text" name="extensions[{{ $index }}][name]"
                                         value="{{ old('extensions.' . $index . '.name', $ext['name']) }}"
@@ -144,7 +168,7 @@
             let newRow = document.createElement('tr');
 
             newRow.innerHTML = `
-            <td><input type="number" name="extensions[${rowCount}][extension]" class="form-control" type="number" value="" required></td>
+            <td><input type="number" name="extensions[${rowCount}][extension]" min="1" class="form-control" type="number" value=""></td>
 
         <td><input type="text" name="extensions[${rowCount}][name]" class="form-control" value="" required></td>
         <td><input type="email" name="extensions[${rowCount}][email]" class="form-control" value=""></td>
@@ -159,8 +183,8 @@
         </select></td>
         
         <td><select name="extensions[${rowCount}][language]" class="form-control" required>
-            <option value="" selected disabled>--- Choisir une langue ---</option>
-            <option value="fr">Français</option>
+            // <option value="" selected disabled>--- Choisir une langue ---</option>
+            <option value="fr" selected>Français</option>
             <option value="en">Anglais</option>
             <option value="it">Italien</option>
             <option value="es">Espagnol</option>

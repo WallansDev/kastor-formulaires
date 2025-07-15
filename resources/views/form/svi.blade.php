@@ -4,13 +4,27 @@
 
 @section('content')
     <div class="container">
-
-        {{-- DEBUG --}}
-        <a href="{{ route('debug.session') }}">Dump Session</a>
-
         <div class="row">
+            <div class="col-12 mt-1">
+                @if (session('info'))
+                    <div class="alert alert-info">
+                        {{ session('info') }}
+                    </div>
+                @endif
+                @if (session('success'))
+                    <div class="alert alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+            </div>
             <form action="{{ route('form.reset') }}" method="POST">
                 @csrf
+                <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>
@@ -52,13 +66,13 @@
                 </div>
 
             </div>
-            <a href="{{route('form.infos')}}" style="float:right;" class="btn btn-success">Suivant</a>
+            <a href="{{ route('form.dialplan') }}" style="float:right;" class="btn btn-success">Suivant</a>
         </form>
     </div>
 @endsection
 
 @section('script-content')
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sviEnabled = @json(session('form.svi_enabled', false));
             const sviOptions = @json(session('form.svi_options', []));
