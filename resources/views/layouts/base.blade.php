@@ -2,6 +2,15 @@
 <html lang="fr">
 
 <head>
+
+    <!-- 
+*****************************
+*     Timothé VAQUIÉ        *
+*     Version : 1.0         *
+*     Date : 15/07/2025     *
+*****************************
+-->
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title')</title>

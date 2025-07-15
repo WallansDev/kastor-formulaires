@@ -4,13 +4,13 @@
     
 @section('content')
 <div class="container">
-    <a href="{{route('form.pbx-info')}}">Formulaire Wildix (ICALL)</a>
-    <div class="row">
-        <div class="col-4" style="border:1px solid red">
-            <canvas width="300" height="100"></canvas>
+    
+    <div class="row mt-3">
+        <div class="col-4"></div>
+        <div class="col-4">
+        <a href="{{route('form.pbx-info')}}"><img src="{{asset('images/formulaire.jpg')}}" class="img-thumbnail" alt="...">
+        <h3 class="mt-1" style="text-align:center;">Formulaire Wildix</h3></a>
         </div>
-        <div class="col-4" style="border:1px solid green"></div>
-        <div class="col-4" style="border:1px solid black"></div>
     </div>
 </div>
 @endsection

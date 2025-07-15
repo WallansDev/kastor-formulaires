@@ -1,5 +1,10 @@
 <?php
 
+// ************************
+// *    Timothé VAQUIÉ    *
+// *    Version : 1.0     *
+// ************************
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;

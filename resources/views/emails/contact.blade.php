@@ -10,6 +10,7 @@
     $infos_remarques = session('form.infos_remarques');
 @endphp --}}
 
+
 <h3>Information(s) générale(s)</h3>
 <strong style="font-size: 13px">Nom du revendeur :</strong> {{ $reseller_name }}
 <br><br>
