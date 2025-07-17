@@ -42,5 +42,5 @@ Route::post('/formulaire/reset', function () {
 })->name('form.reset');
 
 // Debug
-Route::view('/formulaire/session', 'debug.session')->name('debug.session');
+// Route::view('/formulaire/session', 'debug.session')->name('debug.session');
 // Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');

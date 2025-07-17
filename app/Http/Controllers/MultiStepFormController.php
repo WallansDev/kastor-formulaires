@@ -416,20 +416,10 @@ class MultiStepFormController extends Controller
         return redirect()->route('home')->with('success', 'Formulaire soumis avec succès !');
     }
 
-    public function sessionDrop(Request $request)
-    {
-        try {
-            $request->session()->pull('extensions', 'default');
-            $request->session()->pull('portes', 'default');
-            $request->session()->pull('url_pbx', 'default');
-            $request->session()->pull('call_groups', 'default');
-            $request->session()->pull('svi_options', 'default');
-            $request->session()->pull('timetable', 'default');
 
-            return redirect()->back()->with('success', 'Vidage de la session réussite.');
-        } catch (Throwable $th) {
-            return redirect()->back()->with('error', 'Erreur lors du vidage de la session.');
-        }
+    private function dropSession()
+    {
+        session()->flush();
     }
 
     public function export(Request $request)
@@ -510,8 +500,8 @@ class MultiStepFormController extends Controller
 
         $writer->save($path);
 
-        // Mail::to('t.vaquie@kiwi.tel')->send(
-            Mail::to('arnaud@kiwi.tel')->send(
+        Mail::to('t.vaquie@kiwi.tel')->send(
+            // Mail::to('arnaud@kiwi.tel')->send(
             // Mail::to('timothe.vaquie1@gmail.com')->send(
             new MailerFormulaire([
                 'reseller_name' => $reseller_name,
@@ -530,7 +520,7 @@ class MultiStepFormController extends Controller
 
         unlink($path);
 
-        $this->sessionDrop($request);
+        $this->dropSession();
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièce jointe.');
     }
