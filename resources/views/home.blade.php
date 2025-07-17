@@ -1,6 +1,6 @@
 @extends('layouts.base')
 
-@section('title', 'Formulaire Wildix (ICALL)')
+@section('title', 'Formulaires - KASTOR')
     
 @section('content')
 <div class="container">
