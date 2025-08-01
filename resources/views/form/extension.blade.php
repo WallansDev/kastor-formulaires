@@ -152,7 +152,7 @@
                 </table>
             </div>
         </form>
-        <a href="{{ route('form.call-group') }}" style="float:right;" class="btn btn-success mt-5">Suivant</a>
+        <a href="{{ route('form.device') }}" style="float:right;" class="btn btn-success mt-5">Suivant</a>
     </div>
 @endsection
 

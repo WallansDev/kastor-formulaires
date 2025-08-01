@@ -38,8 +38,7 @@
             @csrf
             <div class="row mt-3">
                 <div class="col-5">
-                    <label for="timetable_ho" class="form-label">Heures d'ouverture (H.O.)<span class="required-star">
-                            *</span></label>
+                    <label for="timetable_ho" class="form-label">Heures d'ouverture (H.O.)</label>
                     <div class="input-group mb-1">
                         <small><i>NB : HO = Heures Ouvrées (ouverture) ≠ HNO = Heure Non Ouvrée (fermeture)</i></small>
                     </div>

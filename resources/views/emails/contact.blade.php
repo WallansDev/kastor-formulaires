@@ -7,6 +7,7 @@
     $timetable_ho = session('form.timetable');
     $svi_options = session('form.svi_options');
     $dialplan = session('form.dialplan');
+    $devices = session('form.devices');
     $infos_remarques = session('form.infos_remarques');
 @endphp --}}
 

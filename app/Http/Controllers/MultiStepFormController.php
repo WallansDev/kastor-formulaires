@@ -16,6 +16,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Illuminate\Support\Facades\File;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class MultiStepFormController extends Controller
 {
@@ -230,14 +231,86 @@ class MultiStepFormController extends Controller
         return redirect()->back()->with('success', 'Extensions sauvegardées.');
     }
 
+    // Devices
+    public function devices()
+    {
+        $data = Session::get('form');
+
+        if (!session('form.extensions')) {
+            return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
+        return view('form.devices', compact('data'));
+    }
+
+    public function postDevices(Request $request)
+    {
+        $devices = session('form.devices');
+
+        if ($request->action_type === 'add_device') {
+            $validated = $request->validate([
+                'device_name' => 'required|string',
+                'extension' => 'nullable|string',
+            ]);
+
+            $form = session('form', []);
+
+            $form['devices'][] = [
+                'device_name' => $validated['device_name'],
+                'extension' => $validated['extension'] ?? null,
+            ];
+
+            // dd($validated);
+            if (isset($validated['extension'])) {
+                $extensionData = collect($form['extensions'])->firstWhere('extension', $validated['extension']);
+
+                if ($extensionData) {
+                    $licence = strtolower($extensionData['licence']);
+
+                    $userName = $extensionData['name'] ?? null;
+
+                    $userExtensions = collect($form['extensions'])->filter(fn($ext) => $ext['name'] === $userName)->pluck('extension')->toArray();
+
+                    if ($licence === 'basic') {
+                        // Compter le nombre de devices déjà liés à une de ces extensions
+                        $deviceCount = collect($form['devices'])->filter(fn($device) => $device['extension'] && in_array($device['extension'], $userExtensions))->count();
+
+                        if ($deviceCount >= 1) {
+                            return redirect()
+                                ->back()
+                                ->with('error', "L'extension \"" . $validated['extension'] . ' - ' . $userName . "\" ayant une licence BASIC ne peut avoir qu’un seul équipement.");
+                        }
+                    } elseif ($licence === 'service') {
+                        return redirect()
+                            ->back()
+                            ->with('error', "L'extension \"" . $validated['extension'] . ' - ' . $userName . "\" ayant une licence SERVICE ne peut pas être lié à un équipement.");
+                    }
+                }
+            }
+            session(['form' => $form]);
+
+            return redirect()->back()->with('success', 'Équipement ajouté.');
+        }
+
+        if (str_starts_with($request->action_type, 'delete_device_')) {
+            $index = (int) str_replace('delete_device_', '', $request->action_type);
+            unset($devices[$index]);
+            $devices = array_values($devices);
+
+            session(['form.devices' => $devices]);
+
+            return redirect()->back()->with('success', 'Équipement retiré.');
+        }
+    }
+
     // CALLGROUPS
     public function callGroup()
     {
         $extensions = session('form.extensions', []);
         $callGroups = session('form.callgroups', []);
 
-        if (empty($extensions)) {
-            return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        if (!session('form.devices')) {
+            return back()->with('error', 'Au moins un équipement pour continuer.');
         }
         return view('form.call_group', compact('extensions', 'callGroups'));
     }
@@ -308,7 +381,7 @@ class MultiStepFormController extends Controller
     public function postTimetable(Request $request)
     {
         $validated = $request->validate([
-            'timetable_ho' => 'required|string',
+            'timetable_ho' => 'nullable|string',
         ]);
 
         Session::put('form.timetable_ho', $validated['timetable_ho']);
@@ -338,10 +411,6 @@ class MultiStepFormController extends Controller
     public function svi()
     {
         $data = Session::get('form', []);
-
-        if (!session('form.timetable_ho')) {
-            return back()->with('error', "Horaires d'ouverture obligatoire.");
-        }
 
         return view('form.svi', compact('data'));
     }
@@ -396,7 +465,6 @@ class MultiStepFormController extends Controller
         return redirect()->route('form.recap');
     }
 
-    // OLD
     public function recap()
     {
         $data = Session::get('form');
@@ -416,7 +484,6 @@ class MultiStepFormController extends Controller
         return redirect()->route('home')->with('success', 'Formulaire soumis avec succès !');
     }
 
-
     private function dropSession()
     {
         session()->flush();
@@ -432,12 +499,12 @@ class MultiStepFormController extends Controller
         $customer_name = session('form.customer_name');
         $callGroups = session('form.callgroups', []);
         $svi_options = session('form.svi_options');
-        $timetable = session('form.timetable_ho');
+        $timetable_ho = session('form.timetable_ho');
         $dialplan = session('form.dialplan');
         $infos_remarques = session('form.infos_remarques');
+        $devices = session('form.devices');
 
         if (!empty($request->input('website'))) {
-            // Optionnel : logger ou bloquer l'IP
             abort(403, 'Spam détecté.');
         }
 
@@ -468,8 +535,6 @@ class MultiStepFormController extends Controller
                 $ext['licence'] = 'pbxService';
             }
 
-            // dd($ext['numPorte']);
-
             $data = [$result, $ext['extension'] ?? '', 'user', $ext['name'] ?? '', '', $ext['extension'] ?? '', '', '="' . $ext['numPorte'] ?? '', $ext['email'] ?? '', '', 'users', 'users', $ext['language'] ?? '', 'Default', '', '', '', '', $ext['licence'] ?? '', ''];
 
             $col = 'A';
@@ -488,40 +553,45 @@ class MultiStepFormController extends Controller
         }
 
         $path = storage_path("app/temp/$filename");
-        // $writer = new Xlsx($spreadsheet);
         $writer = new Csv($spreadsheet);
 
-        // Optionnel : configuration du séparateur (virgule par défaut, mais tu peux le changer)
         $writer->setDelimiter(',');
-        // Tu peux aussi définir l’enclosure si nécessaire
         $writer->setEnclosure('"');
         $writer->setLineEnding("\r\n"); // Pour compatibilité Windows
         $writer->setSheetIndex(0); // Assure que c’est bien la première feuille
 
         $writer->save($path);
 
+        $data = [
+            'reseller_name' => $reseller_name,
+            'customer_name' => $customer_name,
+            'urlPbx' => $urlPbx,
+            'portes' => $portes,
+            'extensions' => $extensions,
+            'callGroups' => $callGroups,
+            'timetable_ho' => $timetable_ho,
+            'svi_options' => $svi_options,
+            'dialplan' => $dialplan,
+            'infos_remarques' => $infos_remarques,
+            'devices' => $devices,
+            'fichier' => $path,
+        ];
+
+        $pdf = Pdf::loadView('pdf.new_pbx_summary', $data);
+        $content = $pdf->output();
+
+
+$data['pdf'] = $content;
         Mail::to('t.vaquie@kiwi.tel')->send(
             // Mail::to('arnaud@kiwi.tel')->send(
             // Mail::to('timothe.vaquie1@gmail.com')->send(
-            new MailerFormulaire([
-                'reseller_name' => $reseller_name,
-                'customer_name' => $customer_name,
-                'urlPbx' => $urlPbx,
-                'portes' => $portes,
-                'extensions' => $extensions,
-                'callGroups' => $callGroups,
-                'timetable' => $timetable,
-                'svi_options' => $svi_options,
-                'dialplan' => $dialplan,
-                'infos_remarques' => $infos_remarques,
-                'fichier' => $path,
-            ]),
+            new MailerFormulaire($data),
         );
 
         unlink($path);
 
-        $this->dropSession();
+        // $this->dropSession();
 
-        return redirect()->route('home')->with('success', 'Mail envoyé avec pièce jointe.');
+        return redirect()->route('home')->with('success', 'Mail envoyé avec pièces-jointes.');
     }
 }

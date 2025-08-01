@@ -108,8 +108,8 @@
                     @foreach ($data['extensions'] as $index => $extension)
                         <tr>
 
-                            <td><input type="number" value="{{ $extension['extension'] }}"
-                                    class="no-disabled form-control" disabled></td>
+                            <td><input type="number" value="{{ $extension['extension'] }}" class="no-disabled form-control"
+                                    disabled></td>
 
                             <td><input type="text" value="{{ $extension['name'] }}" class="form-control no-disabled"
                                     disabled></td>
@@ -129,6 +129,38 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        {{-- Équipements WILDIX --}}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4>Équipements WILDIX</h4>
+                <br>
+                @if (!session('form.devices'))
+                    <h6>Pas d'équipements</h6>
+                @else
+                @foreach ($data['devices'] as $index => $device)
+                        Nom du matériel : <b>{{ $device['device_name'] }}</b>
+                        @if (isset($device['extension']))
+                        <br>
+                        Extension associée : <b>{{$device['extension']}}</b>
+                        @endif
+                        {{-- @foreach ($device[''] as $extension)
+                            @if ($callgroup['type'] === 'all_10')
+                                {{ $extension }}
+                                @if (!$loop->last)
+                                    +
+                                @endif
+                            @elseif ($callgroup['type'] === 'linear')
+                                {{ $extension }}@if (!$loop->last)
+                                    ->
+                                @endif
+                            @endif
+                        @endforeach --}}
+                        <br><br>
+                    @endforeach
+            @endif
+            </div>
         </div>
 
         {{-- Callgroups --}}
@@ -168,7 +200,7 @@
             <div class="col-12">
                 <h4>Heure(s) d'ouverture (H.O.)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['timetable_ho'] ?: 'non' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['timetable_ho'] ?: '' }}</textarea>
             </div>
         </div>
 
