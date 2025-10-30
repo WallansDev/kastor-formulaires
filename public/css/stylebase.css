@@ -52,11 +52,10 @@ nav
 .btn-add
 {
     padding: 5px 10px;
-    font-size: 20px;
-    border: 1px solid darkgreen;
-    border-radius: 5px;
-    background-color: white;
-    color: darkgreen;
+    border: 1px solid black;
+    border-radius: 25% 10%;
+    background-color: rgb(19, 104, 19);
+    color: white;
 }
 
 .btn-add2

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Résumé des équipements</title>
+    <title>Dossier de paramétrage</title>
     <style>
         body {
             font-family: DejaVu Sans, sans-serif;
@@ -45,6 +45,7 @@
 
    @php
 //    $reseller_name = session('form.reseller_name');
+//    $reseller_email = session('form.reseller_email');
 //    $customer_name = session('form.customer_name');
 //     $urlPbx = session('form.url_pbx');
 //     $portes = session('form.numeros.portes', []);
@@ -68,6 +69,8 @@
 <hr>
    <h3>Information(s) générale(s) :</h3>
 <strong style="font-size: 13px">Nom du revendeur :</strong> {{ $reseller_name }}
+<br>
+<strong style="font-size: 13px">Email du revendeur :</strong> {{ $reseller_email }}
 <br><br>
 <hr>
 <h3>Information(s) du client :</h3>

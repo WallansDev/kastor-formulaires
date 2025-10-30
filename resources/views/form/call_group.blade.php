@@ -142,7 +142,7 @@
                 </div>
             </div>
 
-            <div class="mt-5">
+            <div class="mt-5 mb-3">
                 <a href="{{ route('form.timetable') }}" style="float:right;" class="btn btn-success">Suivant</a>
             </div>
 

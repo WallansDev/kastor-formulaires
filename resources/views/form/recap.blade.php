@@ -55,6 +55,8 @@
                 <br>
                 <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?: '' }}
                 <br>
+                <b>Email destinataire copie récapitulatif :</b> {{ $data['reseller_email'] ?: '' }}
+                <br>
             </div>
         </div>
 
@@ -225,7 +227,7 @@
             <div class="col-12">
                 <h4>Dialplan(s) :</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?: 'non' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?: '' }}</textarea>
             </div>
         </div>
 
@@ -237,7 +239,7 @@
                 @if (!session('form.infos_remarques'))
                     <textarea class="form-control" cols="600" rows="5" disabled></textarea>
                 @else
-                    <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: 'non' }}</textarea>
+                    <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: '' }}</textarea>
                 @endif
             </div>
         </div>

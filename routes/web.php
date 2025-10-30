@@ -17,6 +17,9 @@ Route::post('/formulaire/extensions', [MultiStepFormController::class, 'postExte
 Route::get('/formulaire/devices', [MultiStepFormController::class, 'devices'])->name('form.device');
 Route::post('/formulaire/devices', [MultiStepFormController::class, 'postDevices']);
 
+Route::get('/formulaire/dect', [MultiStepFormController::class, 'dect'])->name('form.dect');
+Route::post('/formulaire/dect', [MultiStepFormController::class, 'postDect']);
+
 Route::get('/formulaire/call-groups', [MultiStepFormController::class, 'callGroup'])->name('form.call-group');
 Route::post('/formulaire/call-groups', [MultiStepFormController::class, 'postCallGroup']);
 
@@ -46,5 +49,6 @@ Route::post('/formulaire/reset', function () {
 
 // Debug
 Route::view('/formulaire/session', 'debug.session')->name('debug.session');
-// Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');
+
+Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');
 Route::view('/formulaire/pdf', 'pdf.new_pbx_summary')->name('debug.pdf');

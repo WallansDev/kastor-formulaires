@@ -2,7 +2,7 @@
 
 // ************************
 // *    Timothé VAQUIÉ    *
-// *    Version : 1.0     *
+// *    Version : 2.0     *
 // ************************
 
 namespace App\Http\Controllers;
@@ -17,6 +17,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;
 use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Rules\ValidExtension;
 
 class MultiStepFormController extends Controller
 {
@@ -31,13 +32,15 @@ class MultiStepFormController extends Controller
     {
         $validated = $request->validate([
             'reseller_name' => 'required|string',
+            'reseller_email' => 'required|string',
             'customer_name' => 'required|string',
             'url_pbx' => 'required|string',
         ]);
 
         Session::put('form.reseller_name', $validated['reseller_name']);
+        Session::put('form.reseller_email', $validated['reseller_email']);
         Session::put('form.customer_name', $validated['customer_name']);
-        Session::put('form.url_pbx', str_replace(' ', '', $validated['url_pbx']));
+        Session::put('form.url_pbx', str_replace(' ', '', strtolower($validated['url_pbx'])));
 
         return redirect()->route('form.num-list');
     }
@@ -47,6 +50,7 @@ class MultiStepFormController extends Controller
     {
         $dataForm = Session::get('form', []);
         $data['portes'] = session('form.numeros.portes', []);
+
         if (!session('form.url_pbx')) {
             return redirect()->route('form.pbx-info')->with('error', 'Des informations sont manquantes pour continuer.');
         }
@@ -163,10 +167,8 @@ class MultiStepFormController extends Controller
 
     public function postExtension(Request $request)
     {
-        // Récupère les extensions déjà en session
-        $extensions = session('form.extensions', []);
+        $extensions = $request->input('extensions', []);
 
-        // Si c'est un bouton "delete" qui a été cliqué
         if ($request->has('delete')) {
             $indexToDelete = $request->input('delete');
 
@@ -183,52 +185,18 @@ class MultiStepFormController extends Controller
         }
 
         $validated = $request->validate([
-            'extensions' => 'required|array',
-            'extensions.*.extension' => 'nullable|numeric',
+            'extensions' => 'required|array|min:1',
+            'extensions.*.extension' => ['required', new ValidExtension($extensions)],
             'extensions.*.name' => 'required|string',
-            'extensions.*.email' => 'nullable|string',
+            'extensions.*.email' => 'nullable|email',
             'extensions.*.numPorte' => 'required|string',
-            'extensions.*.language' => 'required|string',
-            'extensions.*.licence' => 'required|string',
+            'extensions.*.language' => 'required|string|in:fr,en,it,es',
+            'extensions.*.licence' => 'required|string|in:service,basic,essential,business,premium',
         ]);
-
-        $extensionNums = array_column($validated['extensions'], 'extension');
-
-        foreach ($extensionNums as $extensionNum) {
-            // Interdiction 2 chiffres numéros d'urgence
-            if (strlen($extensionNum) == 2 && in_array($extensionNum, ['15', '17', '18'])) {
-                return back()->with(['error' => "Numéro d'extension invalide, " . $extensionNum . " est un numéro d'urgence."]);
-            }
-
-            // Interdiction 3 chiffres plage 100 - 199
-            if (strlen($extensionNum) == 3 && $extensionNum >= 100 && $extensionNum <= 199) {
-                return back()->with(['error' => "Numéro d'extension invalide, plage 100 à 199 réservée"]);
-            }
-
-            // Interdiction 4 plage 3XXX
-            if (strlen($extensionNum) == 4 && $extensionNum >= 3000 && $extensionNum <= 3999) {
-                return back()->with(['error' => "Numéro d'extension invalide, plage 3000 à 3999 réservée"]);
-            }
-
-            // Interdiction 4 plage 3XXX
-            if ($extensionNum == 116000) {
-                return back()->with(['error' => "Numéro d'extension invalide, 116000 est réservée"]);
-            }
-
-            // Interdiction 2222
-            if ($extensionNum == 2222) {
-                return back()->with(['error' => "Numéro d'extension invalide, 2222 est réservé"]);
-            }
-        }
-
-        // Vérification des doublons
-        if (count($extensionNums) !== count(array_unique($extensionNums))) {
-            return back()->with(['error' => 'Deux extensions ou plus ont le même numéro d\'extension.']);
-        }
 
         session()->put('form.extensions', $validated['extensions']);
 
-        return redirect()->back()->with('success', 'Extensions sauvegardées.');
+        return redirect()->route('form.device')->with('success', 'Extensions sauvegardées en mémoire (session) !');
     }
 
     // Devices
@@ -275,7 +243,7 @@ class MultiStepFormController extends Controller
                         // Compter le nombre de devices déjà liés à une de ces extensions
                         $deviceCount = collect($form['devices'])->filter(fn($device) => $device['extension'] && in_array($device['extension'], $userExtensions))->count();
 
-                        if ($deviceCount >= 1) {
+                        if ($deviceCount > 1) {
                             return redirect()
                                 ->back()
                                 ->with('error', "L'extension \"" . $validated['extension'] . ' - ' . $userName . "\" ayant une licence BASIC ne peut avoir qu’un seul équipement.");
@@ -301,7 +269,32 @@ class MultiStepFormController extends Controller
 
             return redirect()->back()->with('success', 'Équipement retiré.');
         }
+
+        $deviceNames = ['W-AIR SYNC PLUS BASE', 'W-AIR SYNC PLUS BASE OUTDOOR', 'W-AIR SMALL BUSINESS'];
+        $containsSpecialDevice = collect($devices)->contains(function ($device) use ($deviceNames) {
+            return in_array($device['device_name'], $deviceNames);
+        });
+
+        if ($containsSpecialDevice) {
+            return redirect()->route('form.dect');
+        } else {
+            return redirect()->route('form.call-group');
+        }
     }
+
+    // Devices Phones
+    public function dect()
+    {
+        $data = Session::get('form');
+
+        if (!session('form.extensions')) {
+            return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
+        return view('form.dect', compact('data'));
+    }
+
+    public function postDect(Request $request) {}
 
     // CALLGROUPS
     public function callGroup()
@@ -496,6 +489,7 @@ class MultiStepFormController extends Controller
         $portes = session('form.numeros.portes', []);
         $urlPbx = session('form.url_pbx');
         $reseller_name = session('form.reseller_name');
+        $reseller_email = session('form.reseller_email');
         $customer_name = session('form.customer_name');
         $callGroups = session('form.callgroups', []);
         $svi_options = session('form.svi_options');
@@ -574,23 +568,22 @@ class MultiStepFormController extends Controller
             'dialplan' => $dialplan,
             'infos_remarques' => $infos_remarques,
             'devices' => $devices,
+            'reseller_email' => $reseller_email,
             'fichier' => $path,
         ];
 
         $pdf = Pdf::loadView('pdf.new_pbx_summary', $data);
         $content = $pdf->output();
 
+        $data['pdf'] = $content;
 
-$data['pdf'] = $content;
-        Mail::to('t.vaquie@kiwi.tel')->send(
-            // Mail::to('arnaud@kiwi.tel')->send(
-            // Mail::to('timothe.vaquie1@gmail.com')->send(
-            new MailerFormulaire($data),
-        );
+        $mail = 'support@kastor.biz';
+
+        Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaire($data));
 
         unlink($path);
 
-        // $this->dropSession();
+        $this->dropSession();
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièces-jointes.');
     }

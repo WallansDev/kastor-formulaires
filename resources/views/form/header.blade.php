@@ -1,5 +1,7 @@
 @php
     $currentRoute = Route::currentRouteName();
+
+    // Étapes de base
     $steps = [
         ['route' => 'form.pbx-info', 'label' => 'Informations IPBX', 'required' => 'form.url_pbx'],
         ['route' => 'form.num-list', 'label' => 'Numéros de téléphone', 'required' => 'form.numeros.portes'],
@@ -12,6 +14,24 @@
         ['route' => 'form.infos', 'label' => 'Informations et remarques', 'required' => null],
         ['route' => 'form.recap', 'label' => 'Récapitulatif', 'required' => 'form.recap'],
     ];
+
+    // Vérification d'un device spécial
+$deviceNames = ['W-AIR SYNC PLUS BASE', 'W-AIR SYNC PLUS BASE OUTDOOR', 'W-AIR SMALL BUSINESS'];
+$devices = session('form.devices', []);
+$containsSpecialDevice = collect($devices)->contains(function ($device) use ($deviceNames) {
+    return in_array($device['device_name'], $deviceNames);
+});
+
+// Si device spécial présent, on ajoute l'étape SVI à la bonne position (après timetable par exemple)
+    if ($containsSpecialDevice) {
+        array_splice($steps, 4, 0, [
+            [
+                'route' => 'form.dect',
+                'label' => 'DECT',
+                'required' => 'form.devices',
+            ],
+        ]);
+    }
 
     $canDisplay = true;
 @endphp
@@ -30,8 +50,8 @@
         @endif
 
         @php
-            // Si une étape requise n'est pas remplie, on bloque toutes les suivantes
-            if ($step['required'] && !session($step['required'])) {
+            // Si une étape requise n'est pas remplie, on bloque les suivantes
+if ($step['required'] && !session($step['required'])) {
                 $canDisplay = false;
             }
         @endphp

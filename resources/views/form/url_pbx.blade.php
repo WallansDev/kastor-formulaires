@@ -46,6 +46,12 @@
                         <input type="text" class="form-control" id="reseller_name" name="reseller_name"
                             value="{{ old('reseller_name', $data['reseller_name'] ?? '') }}" placeholder="Raison sociale + Nom" required>
                     </div>
+                    <label for="reseller_email" class="form-label">Email destinataire du récapitulatif <span class="required-star">
+                            *</span></label>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="reseller_email" name="reseller_email"
+                            value="{{ old('reseller_email', $data['reseller_email'] ?? '') }}" placeholder="john.doe@exemple.com" required>
+                    </div>
                     <br><br>
 
                     <h4>Information(s) IPBX</h4>

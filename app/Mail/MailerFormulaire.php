@@ -29,6 +29,7 @@ class MailerFormulaire extends Mailable
             ->view('emails.contact')
             ->with([
                 'reseller_name' => $this->data['reseller_name'],
+                'reseller_email' => $this->data['reseller_email'],
                 'customer_name' => $this->data['customer_name'],
                 'urlPbx' => $this->data['urlPbx'],
                 'portes' => $this->data['portes'],
@@ -48,7 +49,7 @@ class MailerFormulaire extends Mailable
         }
 
         if (isset($this->data['pdf'])) {
-            $email->attachData($this->data['pdf'], 'dossier_parametrages_'.$this->data['customer_name'].'.pdf', [
+            $email->attachData($this->data['pdf'], 'dossier_parametrage_'.$this->data['customer_name'].'.pdf', [
                 'mime' => 'application/pdf',
             ]);
         }
