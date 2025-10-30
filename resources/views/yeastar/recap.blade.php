@@ -36,7 +36,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('yeastar.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -44,7 +44,7 @@
             </form>
 
             <div class="text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
@@ -67,7 +67,11 @@
                 <br>
                 <b>Nom du client :</b> {{ $data['customer_name'] ?: '' }}
                 <br>
-                <b>URL IPBX :</b> https://{{ $data['url_pbx'] ?: '' }}.wildixin.com/
+                @if ($data['url_pbx'] === '')
+                    <b>Pas d'URL PBX indiqué</b>
+                @else
+                    <b>URL PBX :</b> https://{{ $data['url_pbx'] }}.vokalise.fr
+                @endif
             </div>
         </div>
 
@@ -103,15 +107,14 @@
                         <th>Email</th>
                         <th>#Présenté (appel sortant) <span class="required-star">*</span></th>
                         <th>Langue</th>
-                        <th>Licence <span class="required-star">*</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($data['extensions'] as $index => $extension)
                         <tr>
 
-                            <td><input type="number" value="{{ $extension['extension'] }}" class="no-disabled form-control"
-                                    disabled></td>
+                            <td><input type="number" value="{{ $extension['extension'] }}"
+                                    class="no-disabled form-control" disabled></td>
 
                             <td><input type="text" value="{{ $extension['name'] }}" class="form-control no-disabled"
                                     disabled></td>
@@ -124,9 +127,6 @@
 
                             <td><input type="text" value="{{ strtoupper($extension['language']) }}"
                                     class="form-control no-disabled" disabled></td>
-
-                            <td><input type="text" value="{{ ucfirst($extension['licence']) }}"
-                                    class="form-control no-disabled" disabled></td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -134,43 +134,31 @@
         </div>
 
         {{-- Équipements WILDIX --}}
-        <div class="row mt-5">
+        {{-- <div class="row mt-5">
             <div class="col-12">
-                <h4>Équipements WILDIX</h4>
+                <h4>Équipements yeastar</h4>
                 <br>
-                @if (!session('form.devices'))
+                @if (!session('form_yeastar.devices'))
                     <h6>Pas d'équipements</h6>
                 @else
-                @foreach ($data['devices'] as $index => $device)
+                    @foreach ($data['devices'] as $index => $device)
                         Nom du matériel : <b>{{ $device['device_name'] }}</b>
                         @if (isset($device['extension']))
-                        <br>
-                        Extension associée : <b>{{$device['extension']}}</b>
+                            <br>
+                            Extension associée : <b>{{ $device['extension'] }}</b>
                         @endif
-                        {{-- @foreach ($device[''] as $extension)
-                            @if ($callgroup['type'] === 'all_10')
-                                {{ $extension }}
-                                @if (!$loop->last)
-                                    +
-                                @endif
-                            @elseif ($callgroup['type'] === 'linear')
-                                {{ $extension }}@if (!$loop->last)
-                                    ->
-                                @endif
-                            @endif
-                        @endforeach --}}
                         <br><br>
                     @endforeach
-            @endif
+                @endif
             </div>
-        </div>
+        </div> --}}
 
         {{-- Callgroups --}}
         <div class="row mt-5">
             <div class="col-12">
                 <h4>Groupe(s) d'appel</h4>
                 <br>
-                @if (!session('form.callgroups'))
+                @if (!session('form_yeastar.callgroups'))
                     <h6>Pas de groupe(s) d'appel</h6>
                 @else
                     @foreach ($data['callgroups'] as $index => $callgroup)
@@ -197,6 +185,30 @@
             </div>
         </div>
 
+        {{-- Queues --}}
+        <div class="row mt-5">
+            <div class="col-12">
+                <h4>Queue(s) d'appel</h4>
+                <br>
+                @if (!session('form_yeastar.queues'))
+                    <h6>Pas de queue(s) d'appel</h6>
+                @else
+                    @foreach ($data['queues'] as $index => $queue)
+                        Nom du groupe : {{ $queue['name'] }}
+                        <br>
+                        Extensions associées :
+                        @foreach ($queue['ext'] as $extension)
+                            {{ $extension }}
+                            @if (!$loop->last)
+                                +
+                            @endif
+                        @endforeach
+                        <br><br>
+                    @endforeach
+                @endif
+            </div>
+        </div>
+
         {{-- Timetable --}}
         <div class="row mt-5">
             <div class="col-12">
@@ -211,13 +223,10 @@
             <div class="col-12">
                 <h4>SVI</h4>
                 <br>
-                @if (!session('form.svi_options'))
+                @if (!session('form_yeastar.svi'))
                     <h6>Pas de svi</h6>
                 @else
-                    @foreach ($data['svi_options'] as $option)
-                        {{ 'Choix : ' . $option['ordre'] . ' = ' . $option['nom'] }}
-                        <br>
-                    @endforeach
+                    {{ session('form_yeastar.svi') }}
                 @endif
             </div>
         </div>
@@ -236,7 +245,7 @@
             <div class="col-12">
                 <h4>Information(s) supplémentaire(s) et remarque(s)</h4>
                 <br>
-                @if (!session('form.infos_remarques'))
+                @if (!session('form_yeastar.infos_remarques'))
                     <textarea class="form-control" cols="600" rows="5" disabled></textarea>
                 @else
                     <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: '' }}</textarea>
@@ -244,7 +253,7 @@
             </div>
         </div>
 
-        <form action="{{ route('form.export') }}" method="GET">
+        <form action="{{ route('yeastar.export') }}" method="GET">
             <br>
             <div class="row mt-5 mb-5">
                 <div style="display:none">

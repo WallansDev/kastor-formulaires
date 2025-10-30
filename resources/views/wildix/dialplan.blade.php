@@ -23,7 +23,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('wildix.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -31,11 +31,11 @@
             </form>
 
             <div class="text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
-        <form method="POST" action="{{ route('form.dialplan') }}">
+        <form method="POST" action="{{ route('wildix.dialplan') }}">
             @csrf
             <div class="row mt-3">
                 <div class="col-12">
@@ -45,7 +45,8 @@
                         <small><i>NB : Précisez si le répondeur est avec ou sans messagerie.</i></small>
                     </div>
                     <textarea class="form-control" name="dialplan" id="dialplan" cols="600" rows="5"
-                        placeholder="Ex : +339XXXXXXXX : 201 - Accueil (20 s.) → CG_ALL (Groupe d'appel) (20 s.) → REPONDEUR sans messagerie" required>{{ old('dialplan', $data['dialplan'] ?? '') }}</textarea>
+                        placeholder="Ex : +339XXXXXXXX : 201 - Accueil (20 s.) → CG_ALL (Groupe d'appel) (20 s.) → REPONDEUR sans messagerie"
+                        required>{{ old('dialplan', $data['dialplan'] ?? '') }}</textarea>
                 </div>
             </div>
 
@@ -78,7 +79,7 @@
                     <div class="text-center">
                         <h6>Groupe(s) d'appel(s) disponible(s)</h6>
                     </div>
-                    @if (!session('form.callgroups'))
+                    @if (!session('form_wildix.callgroups'))
                         Pas de groupe d'appel
                     @else
                         @foreach ($data['callgroups'] as $callgroup)
@@ -102,12 +103,10 @@
                     <div class="text-center">
                         <h6>SVI disponible</h6>
                     </div>
-                    @if (!session('svi_options'))
+                    @if (!session('form_wildix.svi'))
                         Pas de SVI
                     @else
-                        @foreach ($data['svi_options'] as $option)
-                            {{ $option }}
-                        @endforeach
+                        {{ $data['svi'] }}
                     @endif
                 </div>
             </div>

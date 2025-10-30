@@ -23,7 +23,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('wildix.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -31,7 +31,7 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 

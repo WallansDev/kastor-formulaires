@@ -577,7 +577,8 @@ class MultiStepFormController extends Controller
 
         $data['pdf'] = $content;
 
-        $mail = 'support@kastor.biz';
+        // $mail = 'support@kastor.biz';
+        $mail = 't.vaquie@kiwi.tel';
 
         Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaire($data));
 

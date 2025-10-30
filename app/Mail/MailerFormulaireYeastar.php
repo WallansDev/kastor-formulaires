@@ -12,7 +12,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class MailerFormulaire extends Mailable
+class MailerFormulaireYeastar extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -25,8 +25,14 @@ class MailerFormulaire extends Mailable
 
     public function build()
     {
-        $email = $this->subject('Nouveau IPBX - ' . $this->data['customer_name'] . ' | https://' . $this->data['urlPbx'] . '.wildixin.com')
-            ->view('emails.contact')
+        if ($this->data['urlPbx'] == "") {
+            $pbx = "";
+        } else {
+            $pbx = "| https://".$this->data['urlPbx'] . ".vokalise.fr";
+        }
+        
+        $email = $this->subject('[YEASTAR] Nouveau IPBX - ' . $this->data['customer_name'] . $pbx)
+            ->view('emails.yeastar')
             ->with([
                 'reseller_name' => $this->data['reseller_name'],
                 'reseller_email' => $this->data['reseller_email'],
@@ -35,21 +41,16 @@ class MailerFormulaire extends Mailable
                 'portes' => $this->data['portes'],
                 'extensions' => $this->data['extensions'],
                 'callGroups' => $this->data['callGroups'],
+                'queues' => $this->data['queues'],
                 'timetable_ho' => $this->data['timetable_ho'],
-                'svi_options' => $this->data['svi_options'],
+                'svi' => $this->data['svi'],
                 'dialplan' => $this->data['dialplan'],
                 'infos_remarques' => $this->data['infos_remarques'],
-                'devices' => $this->data['devices'],
+                // 'devices' => $this->data['devices'],
             ]);
-
-        if (isset($this->data['fichier']) && file_exists($this->data['fichier'])) {
-            $email->attach($this->data['fichier'], [
-                'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ]);
-        }
 
         if (isset($this->data['pdf'])) {
-            $email->attachData($this->data['pdf'], 'dossier_parametrage_'.$this->data['customer_name'].'.pdf', [
+            $email->attachData($this->data['pdf'], 'dossier_parametrage_'.str_replace(' ', '_', strtolower($this->data['customer_name'])).'.pdf', [
                 'mime' => 'application/pdf',
             ]);
         }

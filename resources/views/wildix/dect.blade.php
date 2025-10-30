@@ -30,7 +30,7 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
@@ -106,7 +106,7 @@
             <div class="row mt-5 mb-3">
                 <div class="col-10"></div>
                 <div class="col-2">
-                    <a href="{{route('form.call-group')}}" style="float:right;" class="btn btn-success">Suivant</a>
+                    <a href="{{ route('form.call-group') }}" style="float:right;" class="btn btn-success">Suivant</a>
                 </div>
             </div>
         </form>

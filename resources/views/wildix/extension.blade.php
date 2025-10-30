@@ -22,18 +22,18 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('wildix.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
                         aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
             </form>
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
         <div class="row mb-5">
-            <form method="POST" action="{{ route('form.extension') }}">
+            <form method="POST" action="{{ route('wildix.extension') }}">
                 @csrf
                 <br>
                 <small><i><u>Numéros indisponibles :</u></i>
@@ -64,7 +64,7 @@
                             @php
                                 $extensions = old(
                                     'extensions',
-                                    session('form.extensions', [
+                                    session('form_wildix.extensions', [
                                         [
                                             'extension' => '',
                                             'name' => '',
@@ -175,7 +175,7 @@
                         </tbody>
                     </table>
                 </div>
-                
+
                 <button type="submit" style="float:right;" class="btn btn-success mt-5">Suivant</button>
             </form>
         </div>

@@ -1,0 +1,89 @@
+@php
+    $currentRoute = Route::currentRouteName();
+    $prefix = explode('.', $currentRoute)[0]; // Récupère la partie avant le point (wildix ou yeastar)
+
+    // Étapes de base
+    $steps_wildix = [
+        ['route' => 'wildix.general_info', 'label' => 'Informations IPBX', 'required' => 'form_wildix.url_pbx'],
+        ['route' => 'wildix.num_list', 'label' => 'Numéros de téléphone', 'required' => 'form_wildix.numeros.portes'],
+        ['route' => 'wildix.extension', 'label' => 'Extensions', 'required' => 'form_wildix.extensions'],
+        ['route' => 'wildix.device', 'label' => 'Équipements', 'required' => 'form_wildix.devices'],
+        ['route' => 'wildix.call_group', 'label' => 'Call Groups', 'required' => null],
+        ['route' => 'wildix.timetable', 'label' => "Heures d'ouverture", 'required' => null],
+        ['route' => 'wildix.svi', 'label' => 'SVI', 'required' => null],
+        ['route' => 'wildix.dialplan', 'label' => 'Dialplan', 'required' => 'form.dialplan'],
+        ['route' => 'wildix.infos', 'label' => 'Informations et remarques', 'required' => null],
+        ['route' => 'wildix.recap', 'label' => 'Récapitulatif', 'required' => 'form.recap'],
+    ];
+
+    $steps_yeastar = [
+        ['route' => 'yeastar.general_info', 'label' => 'Informations IPBX', 'required' => 'form_yeastar.url_pbx'],
+        ['route' => 'yeastar.num_list', 'label' => 'Numéros de téléphone', 'required' => 'form_yeastar.numeros.portes'],
+        ['route' => 'yeastar.extension', 'label' => 'Extensions', 'required' => 'form_yeastar.extensions'],
+        // ['route' => 'yeastar.device', 'label' => 'Équipements', 'required' => 'form_yeastar.devices'],
+        ['route' => 'yeastar.call_group', 'label' => 'Call Groups', 'required' => null],
+        ['route' => 'yeastar.timetable', 'label' => "Heures d'ouverture", 'required' => null],
+        ['route' => 'yeastar.svi', 'label' => 'SVI', 'required' => null],
+        ['route' => 'yeastar.dialplan', 'label' => 'Dialplan', 'required' => 'form.dialplan'],
+        ['route' => 'yeastar.infos', 'label' => 'Informations et remarques', 'required' => null],
+        ['route' => 'yeastar.recap', 'label' => 'Récapitulatif', 'required' => 'form.recap'],
+    ];
+
+    // Vérification d'un device spécial
+// $deviceNames = ['W-AIR SYNC PLUS BASE', 'W-AIR SYNC PLUS BASE OUTDOOR', 'W-AIR SMALL BUSINESS'];
+// $devices = session('wildix.devices', []);
+// $containsSpecialDevice = collect($devices)->contains(function ($device) use ($deviceNames) {
+//     return in_array($device['device_name'], $deviceNames);
+// });
+
+// Si device spécial présent, on ajoute l'étape SVI à la bonne position (après timetable par exemple)
+    //     if ($containsSpecialDevice) {
+    //         array_splice($steps, 4, 0, [
+    //             [
+    //                 'route' => 'form.dect',
+    //                 'label' => 'DECT',
+    //                 'required' => 'form.devices',
+    //             ],
+    //         ]);
+    //     }
+
+    //     $canDisplay = true;
+    //
+
+@endphp
+
+<p>
+    <a href="{{ route('home') }}">Accueil</a>
+    @if ($prefix === 'wildix')
+        @foreach ($steps_wildix as $step)
+            >
+            @if ($currentRoute === $step['route'])
+                <strong><a href="{{ route($step['route']) }}">{{ $step['label'] }}</a></strong>
+            @else
+                <a href="{{ route($step['route']) }}">{{ $step['label'] }}</a>
+            @endif
+
+            @php
+                if ($step['required'] && !session($step['required'])) {
+                    $canDisplay = false;
+                }
+            @endphp
+        @endforeach
+    @else
+        @foreach ($steps_yeastar as $step)
+            >
+            @if ($currentRoute === $step['route'])
+                <strong><a href="{{ route($step['route']) }}">{{ $step['label'] }}</a></strong>
+            @else
+                <a href="{{ route($step['route']) }}">{{ $step['label'] }}</a>
+            @endif
+
+            @php
+                if ($step['required'] && !session($step['required'])) {
+                    $canDisplay = false;
+                }
+            @endphp
+        @endforeach
+    @endif
+
+</p>

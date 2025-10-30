@@ -22,7 +22,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('wildix.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -30,11 +30,11 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
-        <form method="POST" action="{{ route('form.device') }}">
+        <form method="POST" action="{{ route('wildix.device') }}">
             @csrf
             <div class="row mt-3">
                 <div class="col-6">
@@ -63,12 +63,88 @@
                             </div>
                         </div>
                     </div>
-                     <br>
+                    <br>
+                    <hr class="col-10">
+                    <br>
+                    <div class="row align-items-center">
+                        {{-- WIRED PHONES --}}
+                        <div class="col-md-5">
+                            <label for="device_name" class="form-label">{{ mb_strtoupper('Téléphones filaires :') }}</label>
+                            <select class="form-control" name="device_name" id="device_name">
+                                <option value="" disabled hidden selected>-- Choisir un équipement --</option>
+                                <option value="" disabled>-- FILAIRES --</option>
+                                <option value="SuperVision 5">SuperVision 5</option>
+                                <option value="WelcomeConsole 5">WelcomeConsole 5</option>
+                                <option value="Start 5">Start 5</option>
+                                <option value="WorkForce 5">WorkForce 5</option>
+                                <option value="ForcePro 5">ForcePro 5</option>
+                                <option value="Vision">Vision</option>
+                            </select>
+                        </div>
+
+                        {{-- EXTENSION --}}
+                        <div class="col-md-6">
+                            <label for="extension" class="form-label">Associer une extension :</label>
+                            <div class="input-group">
+                                <select class="form-control" name="extension" id="extension">
+                                    <option value="" disabled selected>-- Choisir une extension --</option>
+                                    @foreach ($data['extensions'] as $ext)
+                                        <option value="{{ $ext['extension'] }}">
+                                            {{ $ext['extension'] . ' - ' . $ext['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-sm btn-success ms-2" style="padding:10px; height:38px !important;"
+                                    name="action_type" value="add_device">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center mt-4">
+                        {{-- WIRELESS PHONE --}}
+                        <div class="col-md-5">
+                            <label for="device_name"
+                                class="form-label">{{ mb_strtoupper('Téléphones sans-fils :') }}</label>
+                            <select class="form-control" name="device_name" id="device_name">
+                                <option value="" disabled hidden selected>-- Choisir un équipement --</option>
+                                <option value="" disabled>-- DECT --</option>
+                                <option value="W-AIR Basic2">W-AIR Basic2</option>
+                                <option value="W-AIR Office">W-AIR Office</option>
+                                <option value="W-AIR LifeSaver">W-AIR LifeSaver</option>
+                                <option value="W-AIR LifeSaver-EX">W-AIR LifeSaver-EX</option>
+                                <option value="W-AIR Med">W-AIR Med</option>
+                                <option value="" disabled>-- Wi-Fi --</option>
+                                <option value="Wi-One">Wi-One</option>
+                            </select>
+                        </div>
+
+                        {{-- EXTENSION --}}
+                        <div class="col-md-6">
+                            <label for="extension" class="form-label">Associer une extension :</label>
+                            <div class="input-group">
+                                <select class="form-control" name="extension" id="extension">
+                                    <option value="" disabled selected>-- Choisir une extension --</option>
+                                    @foreach ($data['extensions'] as $ext)
+                                        <option value="{{ $ext['extension'] }}">
+                                            {{ $ext['extension'] . ' - ' . $ext['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-sm btn-success ms-2" style="padding:10px; height:38px !important;"
+                                    name="action_type" value="add_device">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
                     <hr class="col-10">
                     <br>
                     {{-- SIP GATEWAY --}}
                     <div class="col-9">
-                        <label for="reseller_name" class="form-label">{{ mb_strtoupper('Paserelles SIP :') }}</label>
+                        <label for="sip_gateway" class="form-label">{{ mb_strtoupper('Paserelles SIP :') }}</label>
                         <div class="input-group mb-3">
                             <select class="form-control" name="device_name" id="device_name">
                                 <option value="" disabled hidden selected>-- Choisir un équipement --</option>
@@ -97,10 +173,14 @@
                     <br>
                     <hr class="col-10">
                     <br>
-                    {{-- HEADSETS --}}
-                    <div class="col-9">
-                        <label for="reseller_name" class="form-label">{{ mb_strtoupper('Casques :') }}</label>
-                        <div class="input-group">
+
+
+
+
+                    <div class="row align-items-center mt-4">
+                        {{-- WIRELESS PHONE --}}
+                        <div class="col-md-5">
+                            <label for="headset" class="form-label">{{ mb_strtoupper('Casques :') }}</label>
                             <select class="form-control" name="device_name" id="device_name">
                                 <option value="" disabled hidden selected>-- Choisir un équipement --</option>
                                 <option value="" disabled>-- FILAIRES --</option>
@@ -110,65 +190,29 @@
                                 <option value="MonoLED BT">MonoLED BT</option>
                                 <option value="DuoLED BT">DuoLED BT</option>
                             </select>
-                            &ensp;
-                            <div class="col-1">
-                                <button class="btn btn-sm btn-success float-end" style="padding:10px" name="action_type"
-                                    value="add_device">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </div>
                         </div>
 
-                        <label for="extension" class="form-label">Associer une extension :</label>
-                        <div class="input-group mb-3">
-                            <select class="form-control" name="extension" id="extension">
-                                <option value="" disabled selected>-- Choisir une extension --</option>
-                                @foreach ($data['extensions'] as $index => $ext)
-                                    <option value="{{ $ext['extension'] }}">{{ $ext['extension'] . ' - ' . $ext['name'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
- <br>
-                    <hr class="col-10">
-                    <br>
-                    {{-- PHONES --}}
-                    <div class="col-9">
-                        <label for="reseller_name" class="form-label">{{ mb_strtoupper('Téléphones :') }}</label>
-                        <div class="input-group mb-3">
-                            <select class="form-control" name="device_name" id="device_name">
-                                <option value="" disabled hidden selected>-- Choisir un équipement --</option>
-                                <option value="" disabled>-- FILAIRES --</option>
-                                <option value="SuperVision 5">SuperVision 5</option>
-                                <option value="WelcomeConsole 5">WelcomeConsole 5</option>
-                                <option value="Start 5">Start 5</option>
-                                <option value="WorkForce 5">WorkForce 5</option>
-                                <option value="ForcePro 5">ForcePro 5</option>
-                                <option value="Vision">Vision</option>
-                                <option value="" disabled>-- Wi-Fi --</option>
-                                <option value="Wi-One">Wi-One</option>
-                            </select>
-                            &ensp;
-                            <div class="col-1">
-                                <button class="btn btn-sm btn-success float-end" style="padding:10px" name="action_type"
-                                    value="add_device">
+                        {{-- EXTENSION --}}
+                        <div class="col-md-6">
+                            <label for="extension" class="form-label">Associer une extension :</label>
+                            <div class="input-group">
+                                <select class="form-control" name="extension" id="extension">
+                                    <option value="" disabled selected>-- Choisir une extension --</option>
+                                    @foreach ($data['extensions'] as $ext)
+                                        <option value="{{ $ext['extension'] }}">
+                                            {{ $ext['extension'] . ' - ' . $ext['name'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <button class="btn btn-sm btn-success ms-2" style="padding:10px; height:38px !important;"
+                                    name="action_type" value="add_device">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
                         </div>
-                        <label for="extension" class="form-label">Associer une extension :</label>
-                        <div class="input-group mb-3">
-                            <select class="form-control" name="extension" id="extension">
-                                <option value="" disabled selected>-- Choisir une extension --</option>
-                                @foreach ($data['extensions'] as $index => $ext)
-                                    <option value="{{ $ext['extension'] }}">
-                                        {{ $ext['extension'] . ' - ' . $ext['name'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
                     </div>
+
+                    <br>
                 </div>
                 <div class="col-6">
                     <h4>Équipements :</h4>
@@ -199,7 +243,7 @@
 
             </div>
 
-            <div class="row mt-5">
+            <div class="row mt-5 mb-3">
                 <div class="col-10"></div>
                 <div class="col-2">
                     <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>

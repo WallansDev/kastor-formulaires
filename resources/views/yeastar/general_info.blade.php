@@ -22,7 +22,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('yeastar.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -30,11 +30,11 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
-        <form method="POST" action="{{ route('form.pbx-info') }}">
+        <form method="POST" action="{{ route('yeastar.general_info') }}">
             @csrf
             <div class="row mt-3">
                 <div class="col-5">
@@ -44,13 +44,16 @@
                             *</span></label>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="reseller_name" name="reseller_name"
-                            value="{{ old('reseller_name', $data['reseller_name'] ?? '') }}" placeholder="Raison sociale + Nom" required>
+                            value="{{ old('reseller_name', $data['reseller_name'] ?? '') }}"
+                            placeholder="Raison sociale - Nom" required>
                     </div>
-                    <label for="reseller_email" class="form-label">Email destinataire du récapitulatif <span class="required-star">
+                    <label for="reseller_email" class="form-label">Email destinataire du récapitulatif <span
+                            class="required-star">
                             *</span></label>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" id="reseller_email" name="reseller_email"
-                            value="{{ old('reseller_email', $data['reseller_email'] ?? '') }}" placeholder="john.doe@exemple.com" required>
+                        <input type="email" class="form-control" id="reseller_email" name="reseller_email"
+                            value="{{ old('reseller_email', $data['reseller_email'] ?? '') }}"
+                            placeholder="john.doe@exemple.com" required>
                     </div>
                     <br><br>
 
@@ -62,16 +65,16 @@
                             value="{{ old('customer_name', $data['customer_name'] ?? '') }}" required>
                     </div>
 
-                    <label for="url_pbx" class="form-label">URL de l'IPBX <span class="required-star"> *</span></label>
+                    <label for="url_pbx" class="form-label">URL de l'IPBX</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">https://</span>
                         <input type="text" class="form-control" id="url_pbx" name="url_pbx"
-                            value="{{ old('url_pbx', $data['url_pbx'] ?? '') }}" placeholder="Entrer nom" required>
-                        <span class="input-group-text">.wildixin.com</span>
+                            value="{{ old('url_pbx', $data['url_pbx'] ?? '') }}" placeholder="Entrer nom">
+                        <span class="input-group-text">.vokalise.fr</span>
                     </div>
                 </div>
             </div>
-            <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>
+            <button type="submit" style="float:right;" class="btn btn-success mb-3">Suivant</button>
         </form>
     </div>
 @endsection

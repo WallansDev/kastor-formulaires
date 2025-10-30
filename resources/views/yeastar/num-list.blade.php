@@ -23,7 +23,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('yeastar.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -31,11 +31,11 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
-        <form action="{{ route('form.num-list') }}" method="POST">
+        <form action="{{ route('yeastar.num_list') }}" method="POST">
             @csrf
             <div class="row mb-5">
                 <div class="col-6">
@@ -127,5 +127,5 @@
             </div>
         </form>
 
-        <a href="{{ route('form.extension') }}" style="float:right;" class="btn btn-success">Suivant</a>
+        <a href="{{ route('yeastar.extension') }}" style="float:right;" class="btn btn-success">Suivant</a>
     @endsection

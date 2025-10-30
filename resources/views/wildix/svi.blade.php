@@ -1,9 +1,8 @@
 @extends('layouts.base')
 
-@section('title', 'Infos et remarques')
+@section('title', 'SVI')
 
 @section('content')
-
     <div class="container">
         <div class="row">
             <div class="col-12 mt-1">
@@ -23,7 +22,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('form.reset') }}" method="POST">
+            <form action="{{ route('wildix.reset') }}" method="POST">
                 @csrf
                 <br>
                 <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
@@ -31,18 +30,20 @@
             </form>
 
             <div class=" text-center col-12 mt-3">
-                @include('form.header')
+                @include('layouts.header')
             </div>
         </div>
 
-        <form method="POST" action="{{ route('form.infos') }}">
+        <form method="POST" action="{{ route('wildix.svi') }}">
             @csrf
             <div class="row mt-3">
-                <div class="col-12">
-                    <label for="infos_remarques" class="form-label">Informations et/ou remarques supplémentaires ?</label>
-                    <div class="input-group mb-3">
-                        <textarea class="form-control" name="infos_remarques" id="infos_remarques" cols="600" rows="5">{{ old('infos_remarques', $data['infos_remarques'] ?? ' ') }}</textarea>
+                <div class="col-6">
+                    <label for="svi" class="form-label">SVI (Serveur Vocal Interactif)</label>
+                    <div class="input-group mb-1">
+                        {{-- <small><i>NB : HO = Heures Ouvrées (ouverture) ≠ HNO = Heure Non Ouvrée (fermeture)</i></small> --}}
                     </div>
+                    <textarea class="form-control" name="svi" id="svi" cols="800" rows="10"
+                        placeholder="Ex: &#10;Choix 1 : Accueil &#10;Choix 2 : Commercial &#10;Choix 3 : Technique &#10;...">{{ old('svi', $data['svi'] ?? '') }}</textarea>
                 </div>
             </div>
             <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>

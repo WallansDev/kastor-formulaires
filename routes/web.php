@@ -1,54 +1,105 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MultiStepFormController;
+use App\Http\Controllers\WildixFormController;
+use App\Http\Controllers\YeastarFormController;
 
 Route::view('/', 'home')->name('home');
 
-Route::get('/formulaire/ipbx-info', [MultiStepFormController::class, 'pbxInfo'])->name('form.pbx-info');
-Route::post('/formulaire/ipbx-info', [MultiStepFormController::class, 'postPbxInfo']);
+Route::prefix('/pbx/wildix')->group(function () {
+Route::get('/general-info', [WildixFormController::class, 'generalInfo'])->name('wildix.general_info');
+Route::post('/general-info', [WildixFormController::class, 'postGeneralInfo']);
 
-Route::get('/formulaire/num-list', [MultiStepFormController::class, 'numList'])->name('form.num-list');
-Route::post('/formulaire/num-list', [MultiStepFormController::class, 'postNumList']);
+Route::get('/num-list', [WildixFormController::class, 'numList'])->name('wildix.num_list');
+Route::post('/num-list', [WildixFormController::class, 'postNumList']);
 
-Route::get('/formulaire/extensions', [MultiStepFormController::class, 'extension'])->name('form.extension');
-Route::post('/formulaire/extensions', [MultiStepFormController::class, 'postExtension']);
+Route::get('/extensions', [WildixFormController::class, 'extension'])->name('wildix.extension');
+Route::post('/extensions', [WildixFormController::class, 'postExtension']);
 
-Route::get('/formulaire/devices', [MultiStepFormController::class, 'devices'])->name('form.device');
-Route::post('/formulaire/devices', [MultiStepFormController::class, 'postDevices']);
+Route::get('/devices', [WildixFormController::class, 'devices'])->name('wildix.device');
+Route::post('/devices', [WildixFormController::class, 'postDevices']);
 
-Route::get('/formulaire/dect', [MultiStepFormController::class, 'dect'])->name('form.dect');
-Route::post('/formulaire/dect', [MultiStepFormController::class, 'postDect']);
+// Route::get('/formulaire/dect', [WildixFormController::class, 'dect'])->name('form.dect');
+// Route::post('/formulaire/dect', [WildixFormController::class, 'postDect']);
 
-Route::get('/formulaire/call-groups', [MultiStepFormController::class, 'callGroup'])->name('form.call-group');
-Route::post('/formulaire/call-groups', [MultiStepFormController::class, 'postCallGroup']);
+Route::get('/call-groups', [WildixFormController::class, 'callGroup'])->name('wildix.call_group');
+Route::post('/call-groups', [WildixFormController::class, 'postCallGroup']);
 
-Route::get('/formulaire/timetable', [MultiStepFormController::class, 'timetable'])->name('form.timetable');
-Route::post('/formulaire/timetable', [MultiStepFormController::class, 'postTimetable']);
+Route::get('/timetable', [WildixFormController::class, 'timetable'])->name('wildix.timetable');
+Route::post('/timetable', [WildixFormController::class, 'postTimetable']);
 
-Route::get('/formulaire/svi', [MultiStepFormController::class, 'svi'])->name('form.svi');
-Route::post('/formulaire/svi', [MultiStepFormController::class, 'postSvi']);
+Route::get('/svi', [WildixFormController::class, 'svi'])->name('wildix.svi');
+Route::post('/svi', [WildixFormController::class, 'postSvi']);
 
-Route::get('/formulaire/dialplan', [MultiStepFormController::class, 'dialplan'])->name('form.dialplan');
-Route::post('/formulaire/dialplan', [MultiStepFormController::class, 'postDialplan']);
+Route::get('/dialplan', [WildixFormController::class, 'dialplan'])->name('wildix.dialplan');
+Route::post('/dialplan', [WildixFormController::class, 'postDialplan']);
 
-Route::get('/formulaire/informations-et-remarques', [MultiStepFormController::class, 'infos'])->name('form.infos');
-Route::post('/formulaire/informations-et-remarques', [MultiStepFormController::class, 'postInfos']);
+Route::get('/informations-et-remarques', [WildixFormController::class, 'infos'])->name('wildix.infos');
+Route::post('/informations-et-remarques', [WildixFormController::class, 'postInfos']);
 
-Route::get('/formulaire/recap', [MultiStepFormController::class, 'recap'])->name('form.recap');
-Route::post('/formulaire/recap', [MultiStepFormController::class, 'postRecap']);
-
-
-Route::get('/formulaire/export', [MultiStepFormController::class, 'export'])->name('form.export');
+Route::get('/recap', [WildixFormController::class, 'recap'])->name('wildix.recap');
+Route::post('/recap', [WildixFormController::class, 'postRecap']);
 
 
-Route::post('/formulaire/reset', function () {
-    session()->flush();
-    return redirect()->route('form.pbx-info')->with('info', 'Session réinitialisée.');
-})->name('form.reset');
+Route::get('/export', [WildixFormController::class, 'export'])->name('wildix.export');
+
+Route::post('/reset', function () {
+    Session::forget('form_wildix');
+    // session()->flush();
+    return redirect()->route('wildix.general_info')->with('info', 'Session réinitialisée.');
+})->name('wildix.reset');
+});
+
+
+
+
+Route::prefix('/pbx/yeastar')->group(function () {
+    Route::get('/general-info', [YeastarFormController::class, 'generalInfo'])->name('yeastar.general_info');
+    Route::post('/general-info', [YeastarFormController::class, 'postGeneralInfo']);
+    
+    Route::get('/num-list', [YeastarFormController::class, 'numList'])->name('yeastar.num_list');
+    Route::post('/num-list', [YeastarFormController::class, 'postNumList']);
+    
+    Route::get('/extensions', [YeastarFormController::class, 'extension'])->name('yeastar.extension');
+    Route::post('/extensions', [YeastarFormController::class, 'postExtension']);
+    
+    Route::get('/devices', [YeastarFormController::class, 'devices'])->name('yeastar.device');
+    Route::post('/devices', [YeastarFormController::class, 'postDevices']);
+    
+    Route::get('/call-groups', [YeastarFormController::class, 'callGroup'])->name('yeastar.call_group');
+    Route::post('/call-groups', [YeastarFormController::class, 'postCallGroup']);
+    
+    Route::get('/timetable', [YeastarFormController::class, 'timetable'])->name('yeastar.timetable');
+    Route::post('/timetable', [YeastarFormController::class, 'postTimetable']);
+    
+    Route::get('/svi', [YeastarFormController::class, 'svi'])->name('yeastar.svi');
+    Route::post('/svi', [YeastarFormController::class, 'postSvi']);
+    
+    Route::get('/dialplan', [YeastarFormController::class, 'dialplan'])->name('yeastar.dialplan');
+    Route::post('/dialplan', [YeastarFormController::class, 'postDialplan']);
+    
+    Route::get('/informations-et-remarques', [YeastarFormController::class, 'infos'])->name('yeastar.infos');
+    Route::post('/informations-et-remarques', [YeastarFormController::class, 'postInfos']);
+    
+    Route::get('/recap', [YeastarFormController::class, 'recap'])->name('yeastar.recap');
+    Route::post('/recap', [YeastarFormController::class, 'postRecap']);
+    
+    
+    Route::get('/export', [YeastarFormController::class, 'export'])->name('yeastar.export');
+    
+    Route::post('/reset', function () {
+        Session::forget('form_yeastar');
+        // session()->flush();
+        return redirect()->route('yeastar.general_info')->with('info', 'Session réinitialisée.');
+    })->name('yeastar.reset');
+    });
+    
+
+
+
+
 
 // Debug
 Route::view('/formulaire/session', 'debug.session')->name('debug.session');
-
-Route::view('/formulaire/contact', 'emails.contact')->name('emails.contact');
-Route::view('/formulaire/pdf', 'pdf.new_pbx_summary')->name('debug.pdf');
+Route::view('/formulaire/contact', 'emails.yeastar')->name('wildix.emails.contact');
+Route::view('/formulaire/pdf', 'pdf.yeastar')->name('debug.pdf');
