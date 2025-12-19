@@ -459,6 +459,10 @@ class YeastarFormController extends Controller
     {
         $data = Session::get('form_yeastar', []);
 
+        if (!session('form_yeastar.extensions')) {
+            return redirect()->route('yeastar.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         return view('yeastar.timetable', compact('data'));
     }
 
@@ -485,9 +489,6 @@ class YeastarFormController extends Controller
     // Dialplan
     public function dialplan()
     {
-        if (!session('form_yeastar.numeros')) {
-            return redirect()->route('yeastar.num_list')->with('error', 'Au moins un numéro est obligatoire pour continuer.');
-        }
         if (!session('form_yeastar.extensions')) {
             return redirect()->route('yeastar.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
         }
@@ -521,6 +522,10 @@ class YeastarFormController extends Controller
     public function svi()
     {
         $data = Session::get('form_yeastar', []);
+
+        if (!session('form_yeastar.extensions')) {
+            return redirect()->route('yeastar.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
 
         return view('yeastar.svi', compact('data'));
     }
@@ -586,7 +591,7 @@ class YeastarFormController extends Controller
         $data = Session::get('form_yeastar', []);
 
         if (!session('form_yeastar.dialplan')) {
-            return back()->with('error', 'Dialplan obligatoire.');
+            return redirect()->route('yeastar.dialplan')->with('error', 'Dialplan obligatoire.');
         }
 
         return view('yeastar.infos', compact('data'));
@@ -615,6 +620,11 @@ class YeastarFormController extends Controller
     public function recap()
     {
         $data = Session::get('form_yeastar');
+
+        if (!session('form_yeastar.dialplan')) {
+            return redirect()->route('yeastar.dialplan')->with('error', 'Dialplan obligatoire.');
+        }
+
         return view('yeastar.recap', compact('data'));
     }
 
