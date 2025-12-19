@@ -23,16 +23,7 @@
                     </div>
                 @endif
             </div>
-            <form action="{{ route('yeastar.reset') }}" method="POST">
-                @csrf
-                <br>
-                <button type="submit" style="float:right;" class="btn btn-outline-danger"><i class="fa fa-trash"
-                        aria-hidden="true" style="color: darkred;"></i> Vider la session</button>
-            </form>
-
-            <div class=" text-center col-12 mt-3">
-                @include('layouts.header')
-            </div>
+            @include('layouts.header')
         </div>
 
         <form action="{{ route('yeastar.num_list') }}" method="POST">
@@ -126,6 +117,6 @@
                 </div>
             </div>
         </form>
-        <a href="{{ route('wildix.general_info') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
-        <a href="{{ route('wildix.extension') }}" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</a>
+        <a href="{{ route('yeastar.general_info') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+        <a href="{{ route('yeastar.extension') }}" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</a>
     @endsection
