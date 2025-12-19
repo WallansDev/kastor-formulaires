@@ -64,7 +64,7 @@
                                 <option value="" disabled>--- Liste d'extensions ---</option>
                                 @foreach ($extensions as $ext)
                                     <option value="{{ $ext['extension'] }}">{{ $ext['extension'] }} -
-                                        {{ $ext['name'] }}
+                                        {{ $ext['surname'] . ' ' . $ext['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -105,7 +105,7 @@
                                 <option value="" disabled>--- Liste d'extensions ---</option>
                                 @foreach ($extensions as $ext)
                                     <option value="{{ $ext['extension'] }}">{{ $ext['extension'] }} -
-                                        {{ $ext['name'] }}
+                                        {{ $ext['surname'] . ' ' . $ext['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -176,7 +176,7 @@
                                 <option value="" disabled>--- Liste d'extensions ---</option>
                                 @foreach ($extensions as $ext)
                                     <option value="{{ $ext['extension'] }}">{{ $ext['extension'] }} -
-                                        {{ $ext['name'] }}
+                                        {{ $ext['surname'] . ' ' . $ext['name'] }}
                                     </option>
                                 @endforeach
                             </select>

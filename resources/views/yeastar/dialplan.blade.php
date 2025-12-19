@@ -61,7 +61,7 @@
                     @foreach ($data['extensions'] as $extension)
                         <ul>
                             <li style="list-style: square;">
-                                {{ $extension['extension'] . ' - ' . $extension['name'] }}
+                                {{ $extension['extension'] . ' - ' . $extension['surname'] . ' ' . $extension['name'] }}
                             </li>
                         </ul>
                     @endforeach

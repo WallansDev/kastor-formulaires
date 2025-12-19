@@ -100,6 +100,7 @@
         <thead>
             <tr>
                 <th>Extension</th>
+                <th>Prénom affiché</th>
                 <th>Nom affiché</th>
                 <th>Email</th>
                 <th>Office</th>
@@ -110,6 +111,7 @@
             @forelse ($extensions as $ext)
                 <tr>
                     <td>{{ $ext['extension'] }}</td>
+                    <td>{{ $ext['surname'] }}</td>
                     <td>{{ $ext['name'] }}</td>
                     <td>{{ $ext['email'] ?? '—' }}</td>
                     <td>{{ $ext['numPorte'] ?? '—' }}</td>

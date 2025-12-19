@@ -76,6 +76,7 @@
                         <thead style="text-align: center">
                             <tr>
                                 <th>#Extension <span class="required-star">*</span></th>
+                                <th>Prénom affiché <span class="required-star">*</span></th>
                                 <th>Nom affiché <span class="required-star">*</span></th>
                                 <th>Email</th>
                                 <th>#Présenté (appel sortant) <span class="required-star">*</span></th>
@@ -95,6 +96,13 @@
                                             <input type="number" min=1 name="extensions[{{ $i }}][extension]"
                                                 value="{{ $ext['extension'] }}" class="form-control" required />
                                             @error("extensions.$i.extension")
+                                                <div class="alert alert-danger">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            <input type="text" name="extensions[{{ $i }}][surname]"
+                                                value="{{ $ext['surname'] }}" class="form-control" required />
+                                            @error("extensions.$i.surname")
                                                 <div class="alert alert-danger">{{ $message }}</div>
                                             @enderror
                                         </td>
@@ -178,6 +186,7 @@
 
                 newRow.innerHTML = `
             <td><input type="number" min=1 name="extensions[${currentIndex}][extension]" class="form-control" required /></td>
+            <td><input type="text" name="extensions[${currentIndex}][surname]" class="form-control" required /></td>
             <td><input type="text" name="extensions[${currentIndex}][name]" class="form-control" required /></td>
             <td><input type="email" name="extensions[${currentIndex}][email]" class="form-control" /></td>
             <td><select name="extensions[${currentIndex}][numPorte]" class="form-control" required>
@@ -215,6 +224,7 @@
             function applyDefaults(row, defaults = {}) {
                 const {
                     extension,
+                    surname,
                     name,
                     email,
                     numPorte,
@@ -223,6 +233,7 @@
                 } = defaults;
 
                 const extensionInput = row.querySelector('input[name$="[extension]"]');
+                const surnameInput = row.querySelector('input[name$="[surname]"]');
                 const nameInput = row.querySelector('input[name$="[name]"]');
                 const emailInput = row.querySelector('input[name$="[email]"]');
                 const porteSelect = row.querySelector('select[name$="[numPorte]"]');
@@ -230,6 +241,7 @@
                 const licenceSelect = row.querySelector('select[name$="[licence]"]');
 
                 if (extensionInput && typeof extension !== 'undefined') extensionInput.value = extension;
+                if (surnameInput && typeof surname !== 'undefined') surnameInput.value = surname;
                 if (nameInput && typeof name !== 'undefined') nameInput.value = name;
                 if (emailInput && typeof email !== 'undefined') emailInput.value = email;
                 if (porteSelect && typeof numPorte !== 'undefined' && porteSelect.querySelector(

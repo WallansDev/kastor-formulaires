@@ -94,6 +94,7 @@
                 <thead style="text-align: center">
                     <tr>
                         <th>#Extension <span class="required-star">*</span></th>
+                        <th>Prénom affiché <span class="required-star">*</span></th>
                         <th>Nom affiché <span class="required-star">*</span></th>
                         <th>Email</th>
                         <th>#Présenté (appel sortant) <span class="required-star">*</span></th>
@@ -105,6 +106,9 @@
                         <tr>
 
                             <td><input type="number" value="{{ $extension['extension'] }}" class="no-disabled form-control"
+                                    disabled></td>
+
+                            <td><input type="text" value="{{ $extension['surname'] }}" class="form-control no-disabled"
                                     disabled></td>
 
                             <td><input type="text" value="{{ $extension['name'] }}" class="form-control no-disabled"

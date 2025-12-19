@@ -205,6 +205,7 @@ class YeastarFormController extends Controller
         $validated = $request->validate([
             'extensions' => 'required|array|min:1',
             'extensions.*.extension' => ['required', new ValidExtensionYeastar($extensions)],
+            'extensions.*.surname' => 'required|string',
             'extensions.*.name' => 'required|string',
             'extensions.*.email' => 'nullable|email',
             'extensions.*.numPorte' => 'required|string',
@@ -754,7 +755,7 @@ class YeastarFormController extends Controller
             //     $ext['licence'] = 'pbxService';
             // }
 
-            $data = [$ext['first_name'] ?? '', $ext['last_name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '8606', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
+            $data = [$ext['surname'] ?? '', $ext['name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '8606', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
 
             $col = 'A';
             foreach ($data as $value) {
