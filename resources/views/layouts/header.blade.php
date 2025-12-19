@@ -52,7 +52,24 @@
 
 @endphp
 
-<p>
+<div class="mt-5 mb-4" style="display:flex; align-items: center; justify-content: space-between;">
+    @if ($prefix === 'wildix')
+        <img src="{{ asset('images/wildix.png') }}" alt="Wildix Logo" width="4%" style="float:left">
+    @elseif ($prefix === 'yeastar')
+        <img src="{{ asset('images/yeastar.png') }}" alt="Yeastar Logo" width="5%" style="float:left">
+    @else
+        <p>Logo non trouvé</p>
+    @endif
+
+    <form action="{{ route('wildix.reset') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn btn-outline-danger"><i class="fa fa-trash" aria-hidden="true"
+                style="color: darkred;"></i> Vider
+            la session</button>
+    </form>
+</div>
+
+<div class="text-center col-12 mb-4">
     <a href="{{ route('home') }}">Accueil</a>
     @if ($prefix === 'wildix')
         @foreach ($steps_wildix as $step)
@@ -86,4 +103,4 @@
         @endforeach
     @endif
 
-</p>
+</div>
