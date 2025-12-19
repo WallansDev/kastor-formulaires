@@ -684,7 +684,7 @@ class WildixFormController extends Controller
         $data = Session::get('form_wildix');
 
         if (!session('form_wildix.dialplan')) {
-            return redirect()->route('wildix.dialplan')->with('error', 'Dialplan obligatoire pour continuer.');
+            return redirect()->route('wildix.dialplan')->with('error', 'Dialplan obligatoire.');
         }
         
         return view('wildix.recap', compact('data'));
