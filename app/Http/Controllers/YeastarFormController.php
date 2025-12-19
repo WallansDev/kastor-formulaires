@@ -262,13 +262,13 @@ class YeastarFormController extends Controller
             $extensionsList = [];
 
             // Nettoyer et valider les extensions
-                if (!empty($extensionsNew) && is_array($extensionsNew)) {
-                    foreach ($extensionsNew as $extension) {
-                        if ($extension && !empty(trim($extension))) {
-                            $extensionsList[] = trim($extension);
-                        }
+            if (!empty($extensionsNew) && is_array($extensionsNew)) {
+                foreach ($extensionsNew as $extension) {
+                    if ($extension && !empty(trim($extension))) {
+                        $extensionsList[] = trim($extension);
                     }
                 }
+            }
 
             $newGroup = [
                 'name' => $request->cgName,
@@ -292,7 +292,6 @@ class YeastarFormController extends Controller
                 $message .= ' ' . count($extensionsList) . ' extension(s) ajoutée(s).';
             }
             session()->flash('success', $message);
-
         }
 
         if ($request->action_type === 'add_queue') {
@@ -335,14 +334,12 @@ class YeastarFormController extends Controller
 
             // Vérifier que le groupe est sélectionné
             if (empty($groupName)) {
-                return redirect()->route('yeastar.call_group')
-                    ->with('error', 'Veuillez sélectionner un groupe d\'appel.');
+                return redirect()->route('yeastar.call_group')->with('error', 'Veuillez sélectionner un groupe d\'appel.');
             }
 
             // Vérifier que des extensions ont été sélectionnées
             if (empty($extensions) || !is_array($extensions)) {
-                return redirect()->route('yeastar.call_group')
-                    ->with('error', 'Veuillez sélectionner au moins une extension.');
+                return redirect()->route('yeastar.call_group')->with('error', 'Veuillez sélectionner au moins une extension.');
             }
 
             // Chercher dans les call groups
@@ -351,8 +348,8 @@ class YeastarFormController extends Controller
                     $addedCount = 0;
                     foreach ($extensions as $extension) {
                         if ($extension && !in_array($extension, $group['ext'])) {
-                    $group['ext'][] = $extension;
-                    $addedCount++;
+                            $group['ext'][] = $extension;
+                            $addedCount++;
                         }
                     }
 
@@ -382,16 +379,15 @@ class YeastarFormController extends Controller
                     if ($queue['name'] === $groupName) {
                         $addedCount = 0;
                         foreach ($extensions as $extension) {
-
-                    if ($extension && !in_array($extension, $queue['ext'])) {
-                        $queue['ext'][] = $extension;
-                        $addedCount++;
-                    }
-                }
-                $foundInQueue = true;
-                if ($addedCount > 0) {
-                    session()->flash('success', $addedCount . ' extension(s) ajoutée(s) à la file d\'attente avec succès.');
-                }
+                            if ($extension && !in_array($extension, $queue['ext'])) {
+                                $queue['ext'][] = $extension;
+                                $addedCount++;
+                            }
+                        }
+                        $foundInQueue = true;
+                        if ($addedCount > 0) {
+                            session()->flash('success', $addedCount . ' extension(s) ajoutée(s) à la file d\'attente avec succès.');
+                        }
                         break;
                     }
                 }
@@ -532,8 +528,8 @@ class YeastarFormController extends Controller
 
     public function postSvi(Request $request)
     {
-         // Sauvegarder les données même si on revient en arrière
-         if ($request->has('svi')) {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('svi')) {
             Session::put('form_yeastar.svi', $request->input('svi'));
         }
         // Si on clique sur Précédent, rediriger vers la page précédente
@@ -599,8 +595,8 @@ class YeastarFormController extends Controller
 
     public function postInfos(Request $request)
     {
-          // Sauvegarder les données même si on revient en arrière
-          if ($request->has('infos_remarques')) {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('infos_remarques')) {
             Session::put('form_yeastar.infos_remarques', $request->input('infos_remarques'));
         }
         // Si on clique sur Précédent, rediriger vers la page précédente
@@ -654,6 +650,141 @@ class YeastarFormController extends Controller
             abort(403, 'Spam détecté.');
         }
 
+        // Création du fichier CSV
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'First Name',
+            'Last Name',
+            'Email Address',
+            'Mobile Number',
+            'User Password',
+            'System Prompt Language',
+            'Email Language',
+            'User Role',
+            'Extension Number',
+            'Caller ID',
+            'Registration Name',
+            'Registration Password',
+            'IP Phone Concurrent Registrations',
+            'Emergency Outbound Caller ID',
+            'Enable Voicemail',
+            'Voicemail PIN Authentication',
+            'Voicemail Access PIN',
+            'Voicemail Language',
+            'New Voicemail Notification',
+            'After Notification',
+            'Play Caller ID',
+            'Play Message Duration',
+            'Play Date and Time',
+            'Time Display Format',
+            'Send email notification when the User Password is changed',
+            'Send email notifications on missed calls',
+            'Recording operation',
+            'All Busy Mode For Endpoints',
+            'Allow Being Monitored',
+            'DTMF Mode',
+            'Transport',
+            'Qualify',
+            'T.38 Support',
+            'SRTP',
+            'Disable Outbound Calls outside Business Hours',
+            'Disable Outbound Calls',
+            'Max Outbound Call Duration (s)',
+            'Disallow International Calls',
+            'Outbound Route Permission',
+            'Linkus Mobile Client',
+            'Linkus Desktop Client',
+            'Linkus Web Client',
+            'Linkus Mobile Client Codec',
+            'Outbound Call Frequency Restriction',
+            'Video Preview',
+            'Auto Preview',
+            'Hot Desking',
+            'Log out of Queue',
+            'Automatic Guest Out',
+            'After hr.',
+            'After min.',
+            'At Daily',
+            'Send to',
+            'Voicemail Email Address',
+            'All Reject Mode for Endpoints',
+            'Call Waiting(for Mobile Client)',
+            'Auto Answer(for Mobile Client)',
+            'Auto Answer Delay Time(s)(for Mobile Client)',
+            'Play Auto Answer Tone(for Mobile Client)',
+            'Auto Answer Paging/Intercom Call(for Mobile Client)',
+            'Paging/Intercom Barge(for Mobile Client)',
+            'Play Auto Answer Tone for Paging/Intercom Call(for Mobile Client)',
+            'Call Waiting(for Desktop Client)',
+            'Auto Answer(for Desktop Client)',
+            'Auto Answer Delay Time(s)(for Desktop Client)',
+            'Play Auto Answer Tone(for Desktop Client)',
+            'Auto Answer Paging/Intercom Call(for Desktop Client)',
+            'Paging/Intercom Barge(for Desktop Client)',
+            'Play Auto Answer Tone for Paging/Intercom Call(for Desktop Client)',
+            'Call Waiting(for Web Client)',
+            'Auto Answer(for Web Client)',
+            'Auto Answer Delay Time(s)(for Web Client)',
+            'Play Auto Answer Tone(for Web Client)',
+            'Auto Answer Paging/Intercom Call(for Web Client)',
+            'Paging/Intercom Barge(for Web Client)',
+            'Play Auto Answer Tone for Paging/Intercom Call(for Web Client)',
+        ];
+        $sheet->fromArray($headers, null, 'A1');
+
+        $row = 2;
+
+        // $usedIds = [];
+
+        foreach ($extensions as $ext) {
+            // $prefix = substr($ext['extension'], 0, 3);
+            // $randomLength = 7 - strlen($prefix);
+
+            // // Boucle jusqu'à obtenir un ID unique
+            // do {
+            //     $randomPart = str_pad(rand(0, pow(10, $randomLength) - 1), $randomLength, '0', STR_PAD_LEFT);
+            //     $result = $prefix . $randomPart;
+            // } while (in_array($result, $usedIds));
+
+            // $usedIds[] = $result; // Marque l'ID comme utilisé
+
+            // if ($ext['licence'] == 'service') {
+            //     $ext['licence'] = 'pbxService';
+            // }
+
+            $data = [$ext['first_name'] ?? '', $ext['last_name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '8606', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
+
+            $col = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($col . $row, $value);
+                $col++;
+            }
+            $row++;
+        }
+
+        if ($urlPbx == "") {
+            $urlPbx = "centrex";
+        }
+
+        $filename = $urlPbx . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $directory = storage_path('app/temp');
+        if (!File::exists($directory)) {
+            File::makeDirectory($directory, 0755, true);
+        }
+
+        $path = storage_path("app/temp/$filename");
+        $writer = new Csv($spreadsheet);
+
+        $writer->setDelimiter(',');
+        $writer->setEnclosure('"');
+        $writer->setLineEnding("\r\n"); // Pour compatibilité Windows
+        $writer->setSheetIndex(0); // Assure que c’est bien la première feuille
+
+        $writer->save($path);
+
         $data = [
             'reseller_name' => $reseller_name,
             'customer_name' => $customer_name,
@@ -668,6 +799,7 @@ class YeastarFormController extends Controller
             'infos_remarques' => $infos_remarques,
             // 'devices' => $devices,
             'reseller_email' => $reseller_email,
+            'fichier' => $path,
         ];
 
         $pdf = Pdf::loadView('pdf.yeastar', $data);
@@ -679,7 +811,9 @@ class YeastarFormController extends Controller
 
         Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaireYeastar($data));
 
-        $this->dropSession();
+        unlink($path);
+
+        // $this->dropSession();
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièces-jointes.');
     }

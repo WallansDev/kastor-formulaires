@@ -25,12 +25,12 @@ class MailerFormulaireYeastar extends Mailable
 
     public function build()
     {
-        if ($this->data['urlPbx'] == "") {
-            $pbx = "";
+        if ($this->data['urlPbx'] == '') {
+            $pbx = '';
         } else {
-            $pbx = "| https://".$this->data['urlPbx'] . ".vokalise.fr";
+            $pbx = '| https://' . $this->data['urlPbx'] . '.vokalise.fr';
         }
-        
+
         $email = $this->subject('[YEASTAR] Nouveau IPBX - ' . $this->data['customer_name'] . $pbx)
             ->view('emails.yeastar')
             ->with([
@@ -49,13 +49,18 @@ class MailerFormulaireYeastar extends Mailable
                 // 'devices' => $this->data['devices'],
             ]);
 
+        if (isset($this->data['fichier']) && file_exists($this->data['fichier'])) {
+            $email->attach($this->data['fichier'], [
+                'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        }
+
         if (isset($this->data['pdf'])) {
-            $email->attachData($this->data['pdf'], 'dossier_parametrage_'.str_replace(' ', '_', strtolower($this->data['customer_name'])).'.pdf', [
+            $email->attachData($this->data['pdf'], 'dossier_parametrage_' . str_replace(' ', '_', strtolower($this->data['customer_name'])) . '.pdf', [
                 'mime' => 'application/pdf',
             ]);
         }
 
-        
         return $email;
     }
 }
