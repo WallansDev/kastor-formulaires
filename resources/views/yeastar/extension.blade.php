@@ -31,6 +31,7 @@
                 <small><i><u>Numéros disponibles :</u></i>
                     <br>
                     <ul>
+                        <li>3 chiffres : tout sauf 100 à 199 (inclus).</li>
                         <li>4 chiffres : 1001 à 2999 et 4000 à 5999</li>
                     </ul>
                 </small>
