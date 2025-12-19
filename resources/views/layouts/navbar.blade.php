@@ -2,6 +2,7 @@
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
             <img src="{{ asset('images/kastor.png') }}" alt="Logo" width="60" height="60" class="me-2">
+            {{ strtoupper(config('app.name', 'Kastor Formulaires')) }}
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
