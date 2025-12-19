@@ -46,7 +46,8 @@
                         placeholder="Ex : Lun au Ven. : 8h à 12h / 14h à 18h">{{ old('timetable_ho', $data['timetable_ho'] ?? '') }}</textarea>
                 </div>
             </div>
-            <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>
+            <button type="submit" name="previous" value="1" style="float:left;" class="btn btn-secondary mt-5">Précédent</button>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</button>
         </form>
     </div>
 @endsection

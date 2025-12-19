@@ -58,7 +58,7 @@
                     <br><br>
 
                     <h4>Information(s) IPBX</h4>
-                    <label for="customer_name" class="form-label">Nom du client <span class="required-star">
+                    <label for="customer_name" class="form-label">Nom du client final<span class="required-star">
                             *</span></label>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="customer_name" name="customer_name"
@@ -74,7 +74,8 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" style="float:right;" class="btn btn-success mb-3">Suivant</button>
+            <a href="{{ route('home') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5">Suivant</button>
         </form>
     </div>
 @endsection

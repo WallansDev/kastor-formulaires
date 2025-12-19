@@ -67,7 +67,8 @@
                 </div>
 
             </div>
-            <a href="{{ route('form.dialplan') }}" style="float:right;" class="btn btn-success">Suivant</a>
+            <a href="{{ route('wildix.infos') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+            <a href="{{ route('form.dialplan') }}" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</a>
         </form>
     </div>
 @endsection

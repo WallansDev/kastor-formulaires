@@ -30,6 +30,25 @@ class WildixFormController extends Controller
 
     public function postGeneralInfo(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('reseller_name')) {
+            Session::put('form_wildix.reseller_name', $request->input('reseller_name'));
+        }
+        if ($request->has('reseller_email')) {
+            Session::put('form_wildix.reseller_email', $request->input('reseller_email'));
+        }
+        if ($request->has('customer_name')) {
+            Session::put('form_wildix.customer_name', $request->input('customer_name'));
+        }
+        if ($request->has('url_pbx')) {
+            Session::put('form_wildix.url_pbx', str_replace(' ', '', strtolower($request->input('url_pbx'))));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('home');
+        }
+
         $validated = $request->validate([
             'reseller_name' => 'required|string',
             'reseller_email' => 'required|string',
@@ -193,9 +212,18 @@ class WildixFormController extends Controller
             'extensions.*.licence' => 'required|string|in:service,basic,essential,business,premium',
         ]);
 
+        // Si on clique sur Précédent, sauvegarder sans validation stricte et rediriger
+        if ($request->has('previous')) {
+            // Sauvegarder ce qui est valide, même si incomplet
+            if (!empty($extensions)) {
+                session()->put('form_wildix.extensions', $extensions);
+            }
+            return redirect()->route('wildix.num_list');
+        }
+
         session()->put('form_wildix.extensions', $validated['extensions']);
 
-        return redirect()->route('wildix.device')->with('success', 'Extensions sauvegardées en mémoire (session) !');
+        return redirect()->route('wildix.device')->with('success', 'Extensions sauvegardées !');
     }
 
     // Devices
@@ -212,6 +240,11 @@ class WildixFormController extends Controller
 
     public function postDevices(Request $request)
     {
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.extension');
+        }
+
         $devices = session('form_wildix.devices');
 
         if ($request->action_type === 'add_device') {
@@ -296,6 +329,10 @@ class WildixFormController extends Controller
     // CALLGROUPS
     public function callGroup()
     {
+        if (!session('form_wildix.extensions')) {
+            return redirect()->route('wildix.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         $extensions = session('form_wildix.extensions', []);
         $callGroups = session('form_wildix.callgroups', []);
         $queues = session('form_wildix.queues', []);
@@ -309,6 +346,11 @@ class WildixFormController extends Controller
 
     public function postCallGroup(Request $request)
     {
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.device');
+        }
+
         $callGroups = session('form_wildix.callgroups', []);
         $queues = session('form_wildix.queues', []);
 
@@ -318,11 +360,31 @@ class WildixFormController extends Controller
                 'cg_type' => 'required|string',
             ]);
 
+            // Récupérer les extensions sélectionnées lors de la création
+            $extensionsNew = $request->input('ext_selectionne_new', []);
+            $extensionsList = [];
+
+            // Nettoyer et valider les extensions
+            if (!empty($extensionsNew) && is_array($extensionsNew)) {
+                foreach ($extensionsNew as $extension) {
+                    if ($extension && !empty(trim($extension))) {
+                        $extensionsList[] = trim($extension);
+                    }
+                }
+            }
+
             $callGroups[] = [
                 'name' => $request->cgName,
                 'type' => $request->cg_type,
-                'ext' => [],
+                'ext' => $extensionsList,
             ];
+
+            // Message de succès avec le nombre d'extensions ajoutées
+            $message = 'Groupe d\'appel créé avec succès.';
+            if (count($extensionsList) > 0) {
+                $message .= ' ' . count($extensionsList) . ' extension(s) ajoutée(s).';
+            }
+            session()->flash('success', $message);
         }
 
         if ($request->action_type === 'add_queue') {
@@ -338,14 +400,36 @@ class WildixFormController extends Controller
 
         if ($request->action_type === 'add_ext') {
             $groupName = $request->input('cg_selectionne');
-            $extension = $request->input('ext_selectionne');
+            $extensions = $request->input('ext_selectionne', []);
             $foundInCallGroup = false;
+            $foundInQueue = false;
+
+            // Vérifier que le groupe est sélectionné
+            if (empty($groupName)) {
+                return redirect()->route('wildix.call_group')
+                    ->with('error', 'Veuillez sélectionner un groupe d\'appel.');
+            }
+
+            // Vérifier que des extensions ont été sélectionnées
+            if (empty($extensions) || !is_array($extensions)) {
+                return redirect()->route('wildix.call_group')
+                    ->with('error', 'Veuillez sélectionner au moins une extension.');
+            }
 
             // Chercher dans les call groups
             foreach ($callGroups as &$group) {
-                if ($group['name'] === $groupName && $extension && !in_array($extension, $group['ext'])) {
-                    $group['ext'][] = $extension;
+                if ($group['name'] === $groupName) {
+                    $addedCount = 0;
+                    foreach ($extensions as $extension) {
+                        if ($extension && !in_array($extension, $group['ext'])) {
+                            $group['ext'][] = $extension;
+                            $addedCount++;
+                        }
+                    }
                     $foundInCallGroup = true;
+                    if ($addedCount > 0) {
+                        session()->flash('success', $addedCount . ' extension(s) ajoutée(s) au groupe avec succès.');
+                    }
                     break;
                 }
             }
@@ -354,12 +438,28 @@ class WildixFormController extends Controller
             // Si pas trouvé dans les call groups, chercher dans les queues
             if (!$foundInCallGroup) {
                 foreach ($queues as &$queue) {
-                    if ($queue['name'] === $groupName && $extension && !in_array($extension, $queue['ext'])) {
-                        $queue['ext'][] = $extension;
+                    if ($queue['name'] === $groupName) {
+                        $addedCount = 0;
+                        foreach ($extensions as $extension) {
+                            if ($extension && !in_array($extension, $queue['ext'])) {
+                                $queue['ext'][] = $extension;
+                                $addedCount++;
+                            }
+                        }
+                        $foundInQueue = true;
+                        if ($addedCount > 0) {
+                            session()->flash('success', $addedCount . ' extension(s) ajoutée(s) à la file d\'attente avec succès.');
+                        }
                         break;
                     }
                 }
                 unset($queue); // bonne pratique avec les références
+            }
+
+            // Si le groupe n'a pas été trouvé
+            if (!$foundInCallGroup && !$foundInQueue) {
+                return redirect()->route('wildix.call_group')
+                    ->with('error', 'Le groupe sélectionné n\'existe pas.');
             }
         }
 
@@ -422,6 +522,16 @@ class WildixFormController extends Controller
 
     public function postTimetable(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('timetable_ho')) {
+            Session::put('form_wildix.timetable_ho', $request->input('timetable_ho'));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.call_group');
+        }
+
         $validated = $request->validate([
             'timetable_ho' => 'nullable|string',
         ]);
@@ -434,12 +544,29 @@ class WildixFormController extends Controller
     // Dialplan
     public function dialplan()
     {
+        if (!session('form_wildix.numeros')) {
+            return redirect()->route('wildix.num_list')->with('error', 'Au moins un numéro est obligatoire pour continuer.');
+        }
+        if (!session('form_wildix.extensions')) {
+            return redirect()->route('wildix.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         $data = Session::get('form_wildix', []);
         return view('wildix.dialplan', compact('data'));
     }
 
     public function postDialplan(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('dialplan')) {
+            Session::put('form_wildix.dialplan', $request->input('dialplan'));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.svi');
+        }
+
         $validated = $request->validate([
             'dialplan' => 'required|string',
         ]);
@@ -460,6 +587,16 @@ class WildixFormController extends Controller
 
     public function postSvi(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('svi')) {
+            Session::put('form_wildix.svi', $request->input('svi'));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.timetable');
+        }
+
         $validated = $request->validate([
             'svi' => 'nullable|string',
         ]);
@@ -507,7 +644,7 @@ class WildixFormController extends Controller
     // Infos et remarques
     public function infos()
     {
-        $data = Session::get('form', []);
+        $data = Session::get('form_wildix', []);
 
         if (!session('form_wildix.dialplan')) {
             return back()->with('error', 'Dialplan obligatoire.');
@@ -518,6 +655,16 @@ class WildixFormController extends Controller
 
     public function postInfos(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('infos_remarques')) {
+            Session::put('form_wildix.infos_remarques', $request->input('infos_remarques'));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('wildix.dialplan');
+        }
+
         $validated = $request->validate([
             'infos_remarques' => 'nullable|string',
         ]);
@@ -533,19 +680,9 @@ class WildixFormController extends Controller
         return view('wildix.recap', compact('data'));
     }
 
-    // public function postRecap()
-    // {
-    //     $data = Session::get('form');
-
-    //     // Nettoyage de session
-    //     Session::forget('form');
-
-    //     return redirect()->route('home')->with('success', 'Formulaire soumis avec succès !');
-    // }
-
     private function dropSession()
     {
-        session()->flush();
+        Session::forget('form_wildix');
     }
 
     public function export(Request $request)
@@ -646,8 +783,7 @@ class WildixFormController extends Controller
 
         $data['pdf'] = $content;
 
-        // $mail = 'support@kastor.biz';
-        $mail = 't.vaquie@kiwi.tel';
+        $mail = config('mail.mail_to');
 
         Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaireWildix($data));
 

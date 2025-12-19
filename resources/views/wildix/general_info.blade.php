@@ -40,7 +40,7 @@
                 <div class="col-5">
 
                     <h4>Information(s) générale(s)</h4>
-                    <label for="reseller_name" class="form-label">Nom du revendeur <span class="required-star">
+                    <label for="reseller_name" class="form-label">Nom du revendeur final<span class="required-star">
                             *</span></label>
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" id="reseller_name" name="reseller_name"
@@ -74,7 +74,8 @@
                     </div>
                 </div>
             </div>
-            <button type="submit" style="float:right;" class="btn btn-success mb-3">Suivant</button>
+            <a href="{{ route('home') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</button>
         </form>
     </div>
 @endsection

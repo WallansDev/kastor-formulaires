@@ -119,32 +119,12 @@
 @endif
 <br><br>
 
-<h3>Queue(s) d'appel :</h3>
-@if (!$queues || is_null($queues))
-    Pas de queue d'appel
-@else
-    @foreach ($queues as $index => $queue)
-        Nom de la queue : {{ $queue['name'] }}
-        <br>
-        Extensions associées :
-        @foreach ($queue['ext'] as $queue)
-            {{ $extension }}
-            @if (!$loop->last)
-                +
-            @endif
-        @endforeach
-        @if (!$loop->last)
-            <br><br>
-        @endif
-    @endforeach
-@endif
-<br><br>
-
 <h3>Heure(s) d'ouverture (H.O.)</h3>
 @if (!$timetable_ho || is_null($timetable_ho))
     Pas d'horaires d'ouverture.
 @else
-    <textarea class="form-control" cols="100" rows="5" disabled>{{ $timetable_ho }}</textarea>
+    <pre
+        style="white-space: pre-wrap; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ $timetable_ho }}</pre>
 @endif
 <br><br>
 
@@ -152,7 +132,8 @@
 @if (!$svi || is_null($svi))
     Pas de SVI
 @else
-    <textarea class="form-control" cols="100" rows="5" disabled>{{ $svi }}</textarea>
+    <pre
+        style="white-space: pre-wrap; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ $svi }}</pre>
 @endif
 <br><br>
 
@@ -160,7 +141,8 @@
 @if (!$dialplan || is_null($dialplan))
     Pas de dialplan.
 @else
-    <textarea class="form-control" cols="100" rows="5" disabled>{{ $dialplan }}</textarea>
+    <pre
+        style="white-space: pre-wrap; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ $dialplan }}</pre>
 @endif
 <br><br>
 
@@ -168,5 +150,6 @@
 @if (!$infos_remarques || is_null($infos_remarques))
     Pas d'informations ou remarques supplémeentaires.
 @else
-    <textarea class="form-control" cols="100" rows="5" disabled>{{ $infos_remarques }}</textarea>
+    <pre
+        style="white-space: pre-wrap; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ $infos_remarques }}</pre>
 @endif

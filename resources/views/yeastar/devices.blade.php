@@ -246,7 +246,9 @@
             <div class="row mt-5 mb-3">
                 <div class="col-10"></div>
                 <div class="col-2">
-                    <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>
+                    <a href="{{ route('yeastar.svi') }}" style="float:left;"
+                        class="btn btn-secondary mt-5">Précédent</a>
+                    <button type="submit" style="float:right;" class="btn btn-success mt-5">Suivant</button>
                 </div>
             </div>
         </form>

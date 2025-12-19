@@ -53,9 +53,9 @@
             <div class="col-12">
                 <h4>Information(s) générale(s)</h4>
                 <br>
-                <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?: '' }}
+                <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?? '' }}
                 <br>
-                <b>Email destinataire copie récapitulatif :</b> {{ $data['reseller_email'] ?: '' }}
+                <b>Email destinataire copie récapitulatif :</b> {{ $data['reseller_email'] ?? '' }}
                 <br>
             </div>
         </div>
@@ -65,9 +65,9 @@
             <div class="col-12">
                 <h4>Information(s) IPBX</h4>
                 <br>
-                <b>Nom du client :</b> {{ $data['customer_name'] ?: '' }}
+                <b>Nom du client :</b> {{ $data['customer_name'] ?? '' }}
                 <br>
-                <b>URL PBX :</b> https://{{ $data['url_pbx'] ?: '' }}.wildixin.com/
+                <b>URL PBX :</b> https://{{ $data['url_pbx'] ?? '' }}.wildixin.com/
             </div>
         </div>
 
@@ -185,36 +185,16 @@
             </div>
         </div>
 
-        {{-- Queues --}}
-        <div class="row mt-5">
-            <div class="col-12">
-                <h4>Queue(s) d'appel</h4>
-                <br>
-                @if (!session('form_wildix.queues'))
-                    <h6>Pas de queue(s) d'appel</h6>
-                @else
-                    @foreach ($data['queues'] as $index => $queue)
-                        Nom du groupe : {{ $queue['name'] }}
-                        <br>
-                        Extensions associées :
-                        @foreach ($queue['ext'] as $extension)
-                            {{ $extension }}
-                            @if (!$loop->last)
-                                +
-                            @endif
-                        @endforeach
-                        <br><br>
-                    @endforeach
-                @endif
-            </div>
-        </div>
-
         {{-- Timetable --}}
         <div class="row mt-5">
             <div class="col-12">
                 <h4>Heure(s) d'ouverture (H.O.)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['timetable_ho'] ?: '' }}</textarea>
+                @if (!session('form_wildix.timetable_ho'))
+                    <textarea class="form-control" disabled cols="600" rows="5"></textarea>
+                @else
+                    <textarea class="form-control" disabled cols="600" rows="5">{{ $data['timetable_ho'] ?? '' }}</textarea>
+                @endif
             </div>
         </div>
 
@@ -224,9 +204,9 @@
                 <h4>SVI</h4>
                 <br>
                 @if (!session('form_wildix.svi'))
-                    <h6>Pas de svi</h6>
+                    <textarea class="form-control" disabled cols="600" rows="5">Pas de svi</textarea>
                 @else
-                    {{ session('form_wildix.svi') }}
+                    <textarea class="form-control" disabled cols="600" rows="5">{{ session('form_wildix.svi') }}</textarea>
                 @endif
             </div>
         </div>
@@ -236,7 +216,7 @@
             <div class="col-12">
                 <h4>Dialplan(s) :</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?: '' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?? '' }}</textarea>
             </div>
         </div>
 
@@ -248,14 +228,14 @@
                 @if (!session('form_wildix.infos_remarques'))
                     <textarea class="form-control" cols="600" rows="5" disabled></textarea>
                 @else
-                    <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: '' }}</textarea>
+                    <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['infos_remarques'] ?? '' }}</textarea>
                 @endif
             </div>
         </div>
 
         <form action="{{ route('wildix.export') }}" method="GET">
             <br>
-            <div class="row mt-5 mb-5">
+            <div class="row mt-5 ">
                 <div style="display:none">
                     <input type="text" name="website" value="">
                 </div>
@@ -263,11 +243,13 @@
                     <input type="checkbox" name="validation" id="validation" required><label for="validation">&ensp;<b>Je
                             certifie l'exactitude des données transmises. </b><span class="required-star">*</span></label>
                 </div>
-                <div class="col-2 d-flex justify-content-end">
-                    <button class="btn btn-outline-info" type="submit">Envoyer les
-                        données</button>
-                </div>
             </div>
+
+            <br>
+
+            <a href="{{ route('wildix.infos') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5 mb-5">Envoyer les
+                données</button>
         </form>
 
     </div>

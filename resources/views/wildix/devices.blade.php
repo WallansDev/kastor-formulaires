@@ -243,12 +243,8 @@
 
             </div>
 
-            <div class="row mt-5 mb-3">
-                <div class="col-10"></div>
-                <div class="col-2">
-                    <button type="submit" style="float:right;" class="btn btn-success">Suivant</button>
-                </div>
-            </div>
+            <button type="submit" name="previous" value="1" style="float:left;" class="btn btn-secondary mt-5">Précédent</button>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5 mb-5">Suivant</button>
         </form>
     </div>
 @endsection

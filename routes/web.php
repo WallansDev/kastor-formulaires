@@ -45,7 +45,6 @@ Route::get('/export', [WildixFormController::class, 'export'])->name('wildix.exp
 
 Route::post('/reset', function () {
     Session::forget('form_wildix');
-    // session()->flush();
     return redirect()->route('wildix.general_info')->with('info', 'Session réinitialisée.');
 })->name('wildix.reset');
 });
@@ -63,8 +62,8 @@ Route::prefix('/pbx/yeastar')->group(function () {
     Route::get('/extensions', [YeastarFormController::class, 'extension'])->name('yeastar.extension');
     Route::post('/extensions', [YeastarFormController::class, 'postExtension']);
     
-    Route::get('/devices', [YeastarFormController::class, 'devices'])->name('yeastar.device');
-    Route::post('/devices', [YeastarFormController::class, 'postDevices']);
+    // Route::get('/devices', [YeastarFormController::class, 'devices'])->name('yeastar.device');
+    // Route::post('/devices', [YeastarFormController::class, 'postDevices']);
     
     Route::get('/call-groups', [YeastarFormController::class, 'callGroup'])->name('yeastar.call_group');
     Route::post('/call-groups', [YeastarFormController::class, 'postCallGroup']);
@@ -89,7 +88,6 @@ Route::prefix('/pbx/yeastar')->group(function () {
     
     Route::post('/reset', function () {
         Session::forget('form_yeastar');
-        // session()->flush();
         return redirect()->route('yeastar.general_info')->with('info', 'Session réinitialisée.');
     })->name('yeastar.reset');
     });
@@ -101,5 +99,5 @@ Route::prefix('/pbx/yeastar')->group(function () {
 
 // Debug
 Route::view('/formulaire/session', 'debug.session')->name('debug.session');
-Route::view('/formulaire/contact', 'emails.yeastar')->name('wildix.emails.contact');
-Route::view('/formulaire/pdf', 'pdf.yeastar')->name('debug.pdf');
+// Route::view('/formulaire/contact', 'emails.yeastar')->name('wildix.emails.contact');
+// Route::view('/formulaire/pdf', 'pdf.yeastar')->name('debug.pdf');

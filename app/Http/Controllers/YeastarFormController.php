@@ -7,7 +7,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\MailerFormulaireyeastar ;
+use App\Mail\MailerFormulaireYeastar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -30,6 +30,25 @@ class YeastarFormController extends Controller
 
     public function postGeneralInfo(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('reseller_name')) {
+            Session::put('form_yeastar.reseller_name', $request->input('reseller_name'));
+        }
+        if ($request->has('reseller_email')) {
+            Session::put('form_yeastar.reseller_email', $request->input('reseller_email'));
+        }
+        if ($request->has('customer_name')) {
+            Session::put('form_yeastar.customer_name', $request->input('customer_name'));
+        }
+        if ($request->has('url_pbx')) {
+            Session::put('form_yeastar.url_pbx', str_replace(' ', '', strtolower($request->input('url_pbx'))));
+        }
+
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('home');
+        }
+
         $validated = $request->validate([
             'reseller_name' => 'required|string',
             'reseller_email' => 'required|string',
@@ -190,125 +209,43 @@ class YeastarFormController extends Controller
             'extensions.*.email' => 'nullable|email',
             'extensions.*.numPorte' => 'required|string',
             'extensions.*.language' => 'required|string|in:fr,en,it,es',
-            // 'extensions.*.licence' => 'required|string|in:service,basic,essential,business,premium',
         ]);
+
+        // Si on clique sur Précédent, sauvegarder sans validation stricte et rediriger
+        if ($request->has('previous')) {
+            // Sauvegarder ce qui est valide, même si incomplet
+            if (!empty($extensions)) {
+                session()->put('form_yeastar.extensions', $extensions);
+            }
+            return redirect()->route('yeastar.num_list');
+        }
 
         session()->put('form_yeastar.extensions', $validated['extensions']);
 
-        return redirect()->route('yeastar.call_group')->with('success', 'Extensions sauvegardées en mémoire (session) !');
+        return redirect()->route('yeastar.call_group')->with('success', 'Extensions sauvegardées !');
     }
-
-    // Devices
-    // public function devices()
-    // {
-    //     $data = Session::get('form_yeastar');
-
-    //     if (!session('form_yeastar.extensions')) {
-    //         return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
-    //     }
-
-    //     return view('yeastar.devices', compact('data'));
-    // }
-
-    // public function postDevices(Request $request)
-    // {
-    //     $devices = session('form_yeastar.devices');
-
-    //     if ($request->action_type === 'add_device') {
-    //         $validated = $request->validate([
-    //             'device_name' => 'required|string',
-    //             'extension' => 'nullable|string',
-    //         ]);
-
-    //         $form = session('form_yeastar', []);
-
-    //         $form['devices'][] = [
-    //             'device_name' => $validated['device_name'],
-    //             'extension' => $validated['extension'] ?? null,
-    //         ];
-
-    //         if (isset($validated['extension'])) {
-    //             $extensionData = collect($form['extensions'])->firstWhere('extension', $validated['extension']);
-
-    //             if ($extensionData) {
-    //                 $licence = strtolower($extensionData['licence']);
-
-    //                 $userName = $extensionData['name'] ?? null;
-
-    //                 $userExtensions = collect($form['extensions'])->filter(fn($ext) => $ext['name'] === $userName)->pluck('extension')->toArray();
-
-    //                 if ($licence === 'basic') {
-    //                     $deviceCount = collect($form['devices'])->filter(fn($device) => $device['extension'] && in_array($device['extension'], $userExtensions))->count();
-
-    //                     if ($deviceCount > 1) {
-    //                         return redirect()
-    //                             ->back()
-    //                             ->with('error', "L'extension \"" . $validated['extension'] . ' - ' . $userName . "\" ayant une licence BASIC ne peut avoir qu’un seul équipement.");
-    //                     }
-    //                 } elseif ($licence === 'service') {
-    //                     return redirect()
-    //                         ->back()
-    //                         ->with('error', "L'extension \"" . $validated['extension'] . ' - ' . $userName . "\" ayant une licence SERVICE ne peut pas être lié à un équipement.");
-    //                 }
-    //             }
-    //         }
-    //         session(['form_yeastar' => $form]);
-
-    //         return redirect()->back()->with('success', 'Équipement ajouté.');
-    //     }
-
-    //     if (str_starts_with($request->action_type, 'delete_device_')) {
-    //         $index = (int) str_replace('delete_device_', '', $request->action_type);
-    //         unset($devices[$index]);
-    //         $devices = array_values($devices);
-
-    //         session(['form_yeastar.devices' => $devices]);
-
-    //         return redirect()->back()->with('success', 'Équipement retiré.');
-    //     }
-
-    //     // $deviceNames = ['W-AIR SYNC PLUS BASE', 'W-AIR SYNC PLUS BASE OUTDOOR', 'W-AIR SMALL BUSINESS'];
-    //     // $containsSpecialDevice = collect($devices)->contains(function ($device) use ($deviceNames) {
-    //     //     return in_array($device['device_name'], $deviceNames);
-    //     // });
-
-    //     // if ($containsSpecialDevice) {
-    //     //     return redirect()->route('form.dect');
-    //     // } else {
-    //         return redirect()->route('yeastar.call_group');
-    //     // }
-    // }
-
-    // Devices Phones
-    // public function dect()
-    // {
-    //     $data = Session::get('form');
-
-    //     if (!session('form_yeastar.extensions')) {
-    //         return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
-    //     }
-
-    //     return view('yeastar.dect', compact('data'));
-    // }
-
-    // public function postDect(Request $request) {}
 
     // CALLGROUPS
     public function callGroup()
     {
+        if (!session('form_yeastar.extensions')) {
+            return redirect()->route('yeastar.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         $extensions = session('form_yeastar.extensions', []);
         $callGroups = session('form_yeastar.callgroups', []);
         $queues = session('form_yeastar.queues', []);
-
-        // if (!session('form_yeastar.extensions')) {
-        //     return back()->with('error', 'Au moins une extension est obligatoire pour continuer.');
-        // }
 
         return view('yeastar.call_group', compact('extensions', 'callGroups', 'queues'));
     }
 
     public function postCallGroup(Request $request)
     {
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('yeastar.device');
+        }
+
         $callGroups = session('form_yeastar.callgroups', []);
         $queues = session('form_yeastar.queues', []);
 
@@ -316,36 +253,124 @@ class YeastarFormController extends Controller
             $request->validate([
                 'cgName' => 'required|string',
                 'cg_type' => 'required|string',
+                // ring timeout uniquement pertinent pour memory_hunt (champ du formulaire renommé)
+                'cg_ring_timeout' => 'nullable|integer|min:1',
             ]);
 
-            $callGroups[] = [
+            // Récupérer les extensions sélectionnées lors de la création
+            $extensionsNew = $request->input('ext_selectionne_new', []);
+            $extensionsList = [];
+
+            // Nettoyer et valider les extensions
+                if (!empty($extensionsNew) && is_array($extensionsNew)) {
+                    foreach ($extensionsNew as $extension) {
+                        if ($extension && !empty(trim($extension))) {
+                            $extensionsList[] = trim($extension);
+                        }
+                    }
+                }
+
+            $newGroup = [
                 'name' => $request->cgName,
                 'type' => $request->cg_type,
-                'ext' => [],
+                'ext' => $extensionsList,
+                // pour memory_hunt
+                'ring_timeout' => null,
+                // pour custom: paramètres par extension
+                'ext_settings' => [],
             ];
+
+            if ($request->cg_type === 'memory_hunt') {
+                $newGroup['ring_timeout'] = $request->input('cg_ring_timeout');
+            }
+
+            $callGroups[] = $newGroup;
+
+            // Message de succès avec le nombre d'extensions ajoutées
+            $message = 'Groupe d\'appel créé avec succès.';
+            if (count($extensionsList) > 0) {
+                $message .= ' ' . count($extensionsList) . ' extension(s) ajoutée(s).';
+            }
+            session()->flash('success', $message);
+
         }
 
         if ($request->action_type === 'add_queue') {
             $request->validate([
                 'qName' => 'required|string',
+                'q_ring_strategy' => 'required|string',
             ]);
+
+            $extensionsNew = $request->input('ext_selectionne_new', []);
+            $extensionsList = [];
+
+            if (!empty($extensionsNew) && is_array($extensionsNew)) {
+                foreach ($extensionsNew as $extension) {
+                    if ($extension && !empty(trim($extension))) {
+                        $extensionsList[] = trim($extension);
+                    }
+                }
+            }
 
             $queues[] = [
                 'name' => $request->qName,
-                'ext' => [],
+                'strategy' => $request->q_ring_strategy,
+                'ext' => $extensionsList,
             ];
+
+            $message = 'File d\'attente créée avec succès.';
+            if (count($extensionsList) > 0) {
+                $message .= ' ' . count($extensionsList) . ' extension(s) ajoutée(s).';
+            }
+            session()->flash('success', $message);
         }
 
         if ($request->action_type === 'add_ext') {
             $groupName = $request->input('cg_selectionne');
-            $extension = $request->input('ext_selectionne');
+            $extensions = $request->input('ext_selectionne', []);
+            $ringDelay = $request->input('ext_ring_delay');
+            $ringTimeout = $request->input('ext_ring_timeout');
             $foundInCallGroup = false;
+            $foundInQueue = false;
+
+            // Vérifier que le groupe est sélectionné
+            if (empty($groupName)) {
+                return redirect()->route('yeastar.call_group')
+                    ->with('error', 'Veuillez sélectionner un groupe d\'appel.');
+            }
+
+            // Vérifier que des extensions ont été sélectionnées
+            if (empty($extensions) || !is_array($extensions)) {
+                return redirect()->route('yeastar.call_group')
+                    ->with('error', 'Veuillez sélectionner au moins une extension.');
+            }
 
             // Chercher dans les call groups
             foreach ($callGroups as &$group) {
-                if ($group['name'] === $groupName && $extension && !in_array($extension, $group['ext'])) {
+                if ($group['name'] === $groupName) {
+                    $addedCount = 0;
+                    foreach ($extensions as $extension) {
+                        if ($extension && !in_array($extension, $group['ext'])) {
                     $group['ext'][] = $extension;
+                    $addedCount++;
+                        }
+                    }
+
+                    // Si le groupe est de type custom, on enregistre les réglages par extension
+                    if (($group['type'] ?? null) === 'custom') {
+                        if (!isset($group['ext_settings']) || !is_array($group['ext_settings'])) {
+                            $group['ext_settings'] = [];
+                        }
+                        $group['ext_settings'][$extension] = [
+                            'ring_delay' => $ringDelay !== null && $ringDelay !== '' ? (int) $ringDelay : null,
+                            'ring_timeout' => $ringTimeout !== null && $ringTimeout !== '' ? (int) $ringTimeout : null,
+                        ];
+                    }
+
                     $foundInCallGroup = true;
+                    if ($addedCount > 0) {
+                        session()->flash('success', $addedCount . ' extension(s) ajoutée(s) au groupe avec succès.');
+                    }
                     break;
                 }
             }
@@ -354,8 +379,19 @@ class YeastarFormController extends Controller
             // Si pas trouvé dans les call groups, chercher dans les queues
             if (!$foundInCallGroup) {
                 foreach ($queues as &$queue) {
-                    if ($queue['name'] === $groupName && $extension && !in_array($extension, $queue['ext'])) {
+                    if ($queue['name'] === $groupName) {
+                        $addedCount = 0;
+                        foreach ($extensions as $extension) {
+
+                    if ($extension && !in_array($extension, $queue['ext'])) {
                         $queue['ext'][] = $extension;
+                        $addedCount++;
+                    }
+                }
+                $foundInQueue = true;
+                if ($addedCount > 0) {
+                    session()->flash('success', $addedCount . ' extension(s) ajoutée(s) à la file d\'attente avec succès.');
+                }
                         break;
                     }
                 }
@@ -409,6 +445,12 @@ class YeastarFormController extends Controller
 
         session(['form_yeastar.callgroups' => $callGroups]);
         session(['form_yeastar.queues' => $queues]);
+
+        $actionType = $request->input('action_type');
+        if (empty($actionType)) {
+            return redirect()->route('yeastar.timetable');
+        }
+
         return redirect()->route('yeastar.call_group');
     }
 
@@ -422,6 +464,15 @@ class YeastarFormController extends Controller
 
     public function postTimetable(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('timetable_ho')) {
+            Session::put('form_yeastar.timetable_ho', $request->input('timetable_ho'));
+        }
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('yeastar.call_group');
+        }
+
         $validated = $request->validate([
             'timetable_ho' => 'nullable|string',
         ]);
@@ -434,12 +485,29 @@ class YeastarFormController extends Controller
     // Dialplan
     public function dialplan()
     {
+        if (!session('form_yeastar.numeros')) {
+            return redirect()->route('yeastar.num_list')->with('error', 'Au moins un numéro est obligatoire pour continuer.');
+        }
+        if (!session('form_yeastar.extensions')) {
+            return redirect()->route('yeastar.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         $data = Session::get('form_yeastar', []);
+
         return view('yeastar.dialplan', compact('data'));
     }
 
     public function postDialplan(Request $request)
     {
+        // Sauvegarder les données même si on revient en arrière
+        if ($request->has('dialplan')) {
+            Session::put('form_yeastar.dialplan', $request->input('dialplan'));
+        }
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('yeastar.svi');
+        }
+
         $validated = $request->validate([
             'dialplan' => 'required|string',
         ]);
@@ -448,7 +516,6 @@ class YeastarFormController extends Controller
 
         return redirect()->route('yeastar.infos');
     }
-
 
     // SVI
     public function svi()
@@ -460,6 +527,15 @@ class YeastarFormController extends Controller
 
     public function postSvi(Request $request)
     {
+         // Sauvegarder les données même si on revient en arrière
+         if ($request->has('svi')) {
+            Session::put('form_yeastar.svi', $request->input('svi'));
+        }
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('yeastar.timetable');
+        }
+
         $validated = $request->validate([
             'svi' => 'nullable|string',
         ]);
@@ -507,7 +583,7 @@ class YeastarFormController extends Controller
     // Infos et remarques
     public function infos()
     {
-        $data = Session::get('form', []);
+        $data = Session::get('form_yeastar', []);
 
         if (!session('form_yeastar.dialplan')) {
             return back()->with('error', 'Dialplan obligatoire.');
@@ -518,6 +594,15 @@ class YeastarFormController extends Controller
 
     public function postInfos(Request $request)
     {
+          // Sauvegarder les données même si on revient en arrière
+          if ($request->has('infos_remarques')) {
+            Session::put('form_yeastar.infos_remarques', $request->input('infos_remarques'));
+        }
+        // Si on clique sur Précédent, rediriger vers la page précédente
+        if ($request->has('previous')) {
+            return redirect()->route('yeastar.dialplan');
+        }
+
         $validated = $request->validate([
             'infos_remarques' => 'nullable|string',
         ]);
@@ -535,12 +620,11 @@ class YeastarFormController extends Controller
 
     private function dropSession()
     {
-        session()->flush();
+        Session::forget('form_yeastar');
     }
 
     public function export(Request $request)
     {
-
         // Récupère les données depuis la session
         $extensions = session('form_yeastar.extensions', []);
         $portes = session('form_yeastar.numeros.portes', []);
@@ -581,13 +665,11 @@ class YeastarFormController extends Controller
 
         $data['pdf'] = $content;
 
-        // $mail = 'support@kastor.biz';
-        $mail = 't.vaquie@kiwi.tel';
+        $mail = config('mail.mail_to');
 
         Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaireYeastar($data));
 
-
-        // $this->dropSession();
+        $this->dropSession();
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièces-jointes.');
     }

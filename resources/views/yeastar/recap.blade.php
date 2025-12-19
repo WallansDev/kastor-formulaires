@@ -17,7 +17,7 @@
 
 @section('content')
 
-    <div class="container">
+    <div class="container mb-5">
         <div class="row">
             <div class="col-12 mt-1">
                 @if (session('info'))
@@ -53,9 +53,9 @@
             <div class="col-12">
                 <h4>Information(s) générale(s)</h4>
                 <br>
-                <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?: '' }}
+                <b>Nom du revendeur :</b> {{ $data['reseller_name'] ?? '' }}
                 <br>
-                <b>Email destinataire copie récapitulatif :</b> {{ $data['reseller_email'] ?: '' }}
+                <b>Email destinataire copie récapitulatif :</b> {{ $data['reseller_email'] ?? '' }}
                 <br>
             </div>
         </div>
@@ -65,7 +65,7 @@
             <div class="col-12">
                 <h4>Information(s) IPBX</h4>
                 <br>
-                <b>Nom du client :</b> {{ $data['customer_name'] ?: '' }}
+                <b>Nom du client :</b> {{ $data['customer_name'] ?? '' }}
                 <br>
                 @if ($data['url_pbx'] === '')
                     <b>Pas d'URL PBX indiqué</b>
@@ -133,7 +133,7 @@
             </table>
         </div>
 
-        {{-- Équipements WILDIX --}}
+        {{-- Équipements yeastar --}}
         {{-- <div class="row mt-5">
             <div class="col-12">
                 <h4>Équipements yeastar</h4>
@@ -157,8 +157,61 @@
         <div class="row mt-5">
             <div class="col-12">
                 <h4>Groupe(s) d'appel</h4>
-                <br>
-                @if (!session('form_yeastar.callgroups'))
+                <div class="col-4">
+                    @if (!empty($data['callgroups']))
+                        @foreach ($data['callgroups'] as $index => $group)
+                            <div class="mb-3 p-2 border rounded">
+                                <strong>{{ $group['name'] }}</strong> (Stratégie : {{ $group['type'] }})
+                                @if (($group['type'] ?? null) === 'memory_hunt' && !empty($group['ring_timeout']))
+                                    <div class="text-muted small">délai d'attente : {{ $group['ring_timeout'] }}s</div>
+                                @endif
+
+                                @if (!empty($group['ext']))
+                                    <ul class="mt-2">
+                                        @foreach ($group['ext'] as $extIndex => $ext)
+                                            @php
+                                                $displayMeta = '';
+                                                if (($group['type'] ?? null) === 'custom') {
+                                                    $settings = $group['ext_settings'][$ext] ?? null;
+                                                    if ($settings) {
+                                                        $parts = [];
+                                                        if (
+                                                            isset($settings['ring_delay']) &&
+                                                            $settings['ring_delay'] !== null &&
+                                                            $settings['ring_delay'] !== ''
+                                                        ) {
+                                                            $parts[] = 'délai : ' . $settings['ring_delay'] . 's';
+                                                        }
+                                                        if (
+                                                            isset($settings['ring_timeout']) &&
+                                                            $settings['ring_timeout'] !== null &&
+                                                            $settings['ring_timeout'] !== ''
+                                                        ) {
+                                                            $parts[] =
+                                                                "délai d'attente : " . $settings['ring_timeout'] . 's';
+                                                        }
+                                                        $displayMeta = implode(' | ', $parts);
+                                                    }
+                                                }
+                                            @endphp
+                                            <li>
+                                                {{ $ext }}
+                                                @if (!empty($displayMeta))
+                                                    <span class="text-muted"> — {{ $displayMeta }}</span>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <p class="text-muted">Aucune extension assignée.</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    @else
+                        <p>Aucun groupe d’appel pour le moment.</p>
+                    @endif
+                </div>
+                {{-- @if (!session('form_yeastar.callgroups'))
                     <h6>Pas de groupe(s) d'appel</h6>
                 @else
                     @foreach ($data['callgroups'] as $index => $callgroup)
@@ -181,7 +234,7 @@
                         @endforeach
                         <br><br>
                     @endforeach
-                @endif
+                @endif --}}
             </div>
         </div>
 
@@ -189,8 +242,33 @@
         <div class="row mt-5">
             <div class="col-12">
                 <h4>Queue(s) d'appel</h4>
-                <br>
-                @if (!session('form_yeastar.queues'))
+                <div class="col-4">
+                    @if (!empty($data['queues']))
+                        @foreach ($data['queues'] as $index => $queue)
+                            <div class="mb-3 p-2 border rounded">
+                                <strong>{{ $queue['name'] }}</strong>
+                                @if (!empty($queue['strategy']))
+                                    <div class="text-muted small">stratégie : {{ $queue['strategy'] }}</div>
+                                @endif
+
+                                @if (!empty($queue['ext']))
+                                    <ul class="mt-2">
+                                        @foreach ($queue['ext'] as $extIndex => $ext)
+                                            <li>
+                                                {{ $ext }}
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <p class="text-muted">Aucune extension assignée.</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    @else
+                        <p>Aucune file d'attente pour le moment.</p>
+                    @endif
+                </div>
+                {{-- @if (!session('form_yeastar.queues'))
                     <h6>Pas de queue(s) d'appel</h6>
                 @else
                     @foreach ($data['queues'] as $index => $queue)
@@ -205,7 +283,7 @@
                         @endforeach
                         <br><br>
                     @endforeach
-                @endif
+                @endif --}}
             </div>
         </div>
 
@@ -214,7 +292,11 @@
             <div class="col-12">
                 <h4>Heure(s) d'ouverture (H.O.)</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['timetable_ho'] ?: '' }}</textarea>
+                @if (!session('form_yeastar.timetable_ho'))
+                    <textarea class="form-control" disabled cols="600" rows="5"></textarea>
+                @else
+                    <textarea class="form-control" disabled cols="600" rows="5">{{ $data['timetable_ho'] ?? '' }}</textarea>
+                @endif
             </div>
         </div>
 
@@ -224,9 +306,9 @@
                 <h4>SVI</h4>
                 <br>
                 @if (!session('form_yeastar.svi'))
-                    <h6>Pas de svi</h6>
+                    <textarea class="form-control" disabled cols="600" rows="5">Pas de svi</textarea>
                 @else
-                    {{ session('form_yeastar.svi') }}
+                    <textarea class="form-control" disabled cols="600" rows="5">{{ session('form_yeastar.svi') }}</textarea>
                 @endif
             </div>
         </div>
@@ -236,7 +318,7 @@
             <div class="col-12">
                 <h4>Dialplan(s) :</h4>
                 <br>
-                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?: '' }}</textarea>
+                <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['dialplan'] ?? '' }}</textarea>
             </div>
         </div>
 
@@ -248,14 +330,14 @@
                 @if (!session('form_yeastar.infos_remarques'))
                     <textarea class="form-control" cols="600" rows="5" disabled></textarea>
                 @else
-                    <textarea class="form-control" cols="600" rows="5">{{ $data['infos_remarques'] ?: '' }}</textarea>
+                    <textarea class="form-control" cols="600" rows="5" disabled>{{ $data['infos_remarques'] ?? '' }}</textarea>
                 @endif
             </div>
         </div>
 
         <form action="{{ route('yeastar.export') }}" method="GET">
             <br>
-            <div class="row mt-5 mb-5">
+            <div class="row mt-5 ">
                 <div style="display:none">
                     <input type="text" name="website" value="">
                 </div>
@@ -263,12 +345,13 @@
                     <input type="checkbox" name="validation" id="validation" required><label for="validation">&ensp;<b>Je
                             certifie l'exactitude des données transmises. </b><span class="required-star">*</span></label>
                 </div>
-                <div class="col-2 d-flex justify-content-end">
-                    <button class="btn btn-outline-info" type="submit">Envoyer les
-                        données</button>
-                </div>
             </div>
-        </form>
 
+            <br>
+
+            <a href="{{ route('yeastar.infos') }}" style="float:left;" class="btn btn-secondary mt-5">Précédent</a>
+            <button type="submit" style="float:right;" class="btn btn-success mt-5 mb-5">Envoyer les
+                données</button>
+        </form>
     </div>
 @endsection

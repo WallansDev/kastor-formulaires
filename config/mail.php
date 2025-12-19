@@ -115,4 +115,5 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'mail_to' => env('MAIL_TO', 't.vaquie@kiwi.tel'),
 ];
