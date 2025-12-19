@@ -517,6 +517,10 @@ class WildixFormController extends Controller
     {
         $data = Session::get('form_wildix', []);
 
+        if (!session('form_wildix.extensions')) {
+            return redirect()->route('wildix.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
+
         return view('wildix.timetable', compact('data'));
     }
 
@@ -544,9 +548,6 @@ class WildixFormController extends Controller
     // Dialplan
     public function dialplan()
     {
-        if (!session('form_wildix.numeros')) {
-            return redirect()->route('wildix.num_list')->with('error', 'Au moins un numéro est obligatoire pour continuer.');
-        }
         if (!session('form_wildix.extensions')) {
             return redirect()->route('wildix.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
         }
@@ -581,6 +582,10 @@ class WildixFormController extends Controller
     public function svi()
     {
         $data = Session::get('form_wildix', []);
+
+        if (!session('form_wildix.extensions')) {
+            return redirect()->route('wildix.extension')->with('error', 'Au moins une extension est obligatoire pour continuer.');
+        }
 
         return view('wildix.svi', compact('data'));
     }
@@ -677,6 +682,11 @@ class WildixFormController extends Controller
     public function recap()
     {
         $data = Session::get('form_wildix');
+
+        if (!session('form_wildix.dialplan')) {
+            return redirect()->route('wildix.dialplan')->with('error', 'Dialplan obligatoire pour continuer.');
+        }
+        
         return view('wildix.recap', compact('data'));
     }
 
