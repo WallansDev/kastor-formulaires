@@ -755,7 +755,7 @@ class YeastarFormController extends Controller
             //     $ext['licence'] = 'pbxService';
             // }
 
-            $data = [$ext['surname'] ?? '', $ext['name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
+            $data = [$ext['surname'] ?? '', $ext['name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '5', '', '1', '0', '', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
 
             $col = 'A';
             foreach ($data as $value) {
