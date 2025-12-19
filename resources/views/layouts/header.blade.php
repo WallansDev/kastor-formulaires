@@ -28,33 +28,11 @@
         ['route' => 'yeastar.infos', 'label' => 'Informations et remarques', 'required' => null],
         ['route' => 'yeastar.recap', 'label' => 'Récapitulatif', 'required' => 'form.recap'],
     ];
-
-    // Vérification d'un device spécial
-// $deviceNames = ['W-AIR SYNC PLUS BASE', 'W-AIR SYNC PLUS BASE OUTDOOR', 'W-AIR SMALL BUSINESS'];
-// $devices = session('wildix.devices', []);
-// $containsSpecialDevice = collect($devices)->contains(function ($device) use ($deviceNames) {
-//     return in_array($device['device_name'], $deviceNames);
-// });
-
-// Si device spécial présent, on ajoute l'étape SVI à la bonne position (après timetable par exemple)
-    //     if ($containsSpecialDevice) {
-    //         array_splice($steps, 4, 0, [
-    //             [
-    //                 'route' => 'form.dect',
-    //                 'label' => 'DECT',
-    //                 'required' => 'form.devices',
-    //             ],
-    //         ]);
-    //     }
-
-    //     $canDisplay = true;
-    //
-
 @endphp
 
 <div class="mt-5 mb-4" style="display:flex; align-items: center; justify-content: space-between;">
     @if ($prefix === 'wildix')
-        <img src="{{ asset('images/wildix.png') }}" alt="Wildix Logo" width="4%" style="float:left">
+        <img src="{{ asset('images/wildix.png') }}" alt="Wildix Logo" width="5%" style="float:left">
     @elseif ($prefix === 'yeastar')
         <img src="{{ asset('images/yeastar.png') }}" alt="Yeastar Logo" width="5%" style="float:left">
     @else
@@ -69,7 +47,7 @@
     </form>
 </div>
 
-<div class="text-center col-12 mb-4">
+<div class=" text-center col-12 mb-4">
     <a href="{{ route('home') }}">Accueil</a>
     @if ($prefix === 'wildix')
         @foreach ($steps_wildix as $step)
@@ -102,5 +80,4 @@
             @endphp
         @endforeach
     @endif
-
 </div>
