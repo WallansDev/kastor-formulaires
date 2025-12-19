@@ -146,85 +146,90 @@
     </table>
     <hr> --}}
     <h3>Groupe(s) d'appel :</h3>
-    @forelse ($callGroups as $index => $group)
-        <div class="mb-3 p-2 border rounded">
-            Nom du groupe : <strong>{{ $group['name'] }}</strong>
-            <br>
-            Stratégie : {{ $group['type'] }}
-            @if (($group['type'] ?? null) === 'memory_hunt' && !empty($group['ring_timeout']))
-                (délai d'attente : {{ $group['ring_timeout'] }}s)
-            @endif
-            <br>
-            Extension(s) associée(s) :
-            @if (!empty($group['ext']))
-                <ul class="mt-2">
-                    @foreach ($group['ext'] as $extIndex => $ext)
-                        @php
-                            $displayMeta = '';
-                            if (($group['type'] ?? null) === 'custom') {
-                                $settings = $group['ext_settings'][$ext] ?? null;
-                                if ($settings) {
-                                    $parts = [];
-                                    if (
-                                        isset($settings['ring_delay']) &&
-                                        $settings['ring_delay'] !== null &&
-                                        $settings['ring_delay'] !== ''
-                                    ) {
-                                        $parts[] = 'délai : ' . $settings['ring_delay'] . 's';
+    @if (!$callGroups || is_null($callGroups))
+        Pas de groupe d'appel
+    @else
+        @foreach ($callGroups as $index => $group)
+            <div class="mb-3 p-2 border rounded">
+                Nom du groupe : <strong>{{ $group['name'] }}</strong>
+                <br>
+                Stratégie : {{ $group['type'] }}
+                @if (($group['type'] ?? null) === 'memory_hunt' && !empty($group['ring_timeout']))
+                    (délai d'attente : {{ $group['ring_timeout'] }}s)
+                @endif
+                <br>
+                Extension(s) associée(s) :
+                @if (!empty($group['ext']))
+                    <ul class="mt-2">
+                        @foreach ($group['ext'] as $extIndex => $ext)
+                            @php
+                                $displayMeta = '';
+                                if (($group['type'] ?? null) === 'custom') {
+                                    $settings = $group['ext_settings'][$ext] ?? null;
+                                    if ($settings) {
+                                        $parts = [];
+                                        if (
+                                            isset($settings['ring_delay']) &&
+                                            $settings['ring_delay'] !== null &&
+                                            $settings['ring_delay'] !== ''
+                                        ) {
+                                            $parts[] = 'délai : ' . $settings['ring_delay'] . 's';
+                                        }
+                                        if (
+                                            isset($settings['ring_timeout']) &&
+                                            $settings['ring_timeout'] !== null &&
+                                            $settings['ring_timeout'] !== ''
+                                        ) {
+                                            $parts[] = "délai d'attente : " . $settings['ring_timeout'] . 's';
+                                        }
+                                        $displayMeta = implode(' | ', $parts);
                                     }
-                                    if (
-                                        isset($settings['ring_timeout']) &&
-                                        $settings['ring_timeout'] !== null &&
-                                        $settings['ring_timeout'] !== ''
-                                    ) {
-                                        $parts[] = "délai d'attente : " . $settings['ring_timeout'] . 's';
-                                    }
-                                    $displayMeta = implode(' | ', $parts);
                                 }
-                            }
-                        @endphp
-                        <li>
-                            {{ $ext }}
-                            @if (!empty($displayMeta))
-                                <span class="text-muted"> — {{ $displayMeta }}</span>
-                            @endif
-                        </li>
-                        <br>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-muted">Aucune extension assignée.</p>
-            @endif
-        </div>
-    @empty
-        <p>Aucun groupe d’appel pour le moment.</p>
-    @endforelse
+                            @endphp
+                            <li>
+                                {{ $ext }}
+                                @if (!empty($displayMeta))
+                                    <span class="text-muted"> — {{ $displayMeta }}</span>
+                                @endif
+                            </li>
+                            <br>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-muted">Aucune extension assignée.</p>
+                @endif
+            </div>
+        @endforeach
+    @endif
+
     <br><br>
     <hr>
     <h3>Queue(s) d'appel :</h3>
-    @forelse ($queues as $index => $queue)
-        <div class="mb-3 p-2 border rounded">
-            Nom de la queue : <strong>{{ $queue['name'] }}</strong>
-            <br>
-            @if (!empty($queue['strategy']))
-                Stratégie : {{ $queue['strategy'] }}
-            @endif
+    @if (!$queues || is_null($queues))
+        Aucune file d'attente pour le moment.
+    @else
+        @foreach ($queues as $index => $queue)
+            <div class="mb-3 p-2 border rounded">
+                Nom de la queue : <strong>{{ $queue['name'] }}</strong>
+                <br>
+                @if (!empty($queue['strategy']))
+                    Stratégie : {{ $queue['strategy'] }}
+                @endif
 
-            @if (!empty($queue['ext']))
-                <ul class="mt-2">
-                    @foreach ($queue['ext'] as $extIndex => $ext)
-                        <li>
-                            {{ $ext }}
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="text-muted">Aucune extension assignée.</p>
-            @endif
-        </div>
-    @empty
-        <p>Aucune file d'attente pour le moment.</p>
-    @endforelse
+                @if (!empty($queue['ext']))
+                    <ul class="mt-2">
+                        @foreach ($queue['ext'] as $extIndex => $ext)
+                            <li>
+                                {{ $ext }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="text-muted">Aucune extension assignée.</p>
+                @endif
+            </div>
+        @endforeach
+    @endif
     <br><br>
     <hr>
     <h3>Heure(s) d'ouverture (H.O.)</h3>
