@@ -755,7 +755,7 @@ class YeastarFormController extends Controller
             //     $ext['licence'] = 'pbxService';
             // }
 
-            $data = [$ext['surname'] ?? '', $ext['name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '8606', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
+            $data = [$ext['surname'] ?? '', $ext['name'] ?? '', '"' . $ext['email'] ?? '' . '"', '', '', 'French', 'follow_system', '', $ext['extension'] ?? '', $ext['extension'] ?? '', '', '', '{IP Phone Concurrent Registrations ?}', '', '1', '0', '', 'French', 'no', 'no', '0', '0', '0', 'follow_system', '1', '0', '0', '0', '1', 'rfc4733', 'udp', '1', '0', '0', '0', '0', '-1', '1', 'Default_Outbound_Route', '1', '1', '1', '', 'Default_Ext_Outbound Call Frequency', '0', '0', '0', '1', '0', '8', '0', '', 'user_email', '', '0', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1', '1', '0', '0', '1', '0', '0', '1'];
 
             $col = 'A';
             foreach ($data as $value) {
@@ -780,7 +780,7 @@ class YeastarFormController extends Controller
         $writer = new Csv($spreadsheet);
 
         $writer->setDelimiter(',');
-        $writer->setEnclosure('"');
+        // $writer->setEnclosure('"');
         $writer->setLineEnding("\r\n"); // Pour compatibilité Windows
         $writer->setSheetIndex(0); // Assure que c’est bien la première feuille
 
@@ -814,7 +814,7 @@ class YeastarFormController extends Controller
 
         unlink($path);
 
-        // $this->dropSession();
+        $this->dropSession();
 
         return redirect()->route('home')->with('success', 'Mail envoyé avec pièces-jointes.');
     }

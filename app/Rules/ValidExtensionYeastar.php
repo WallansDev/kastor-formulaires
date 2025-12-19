@@ -33,14 +33,13 @@ class ValidExtensionYeastar implements ValidationRule
         elseif (strlen($extension) === 3) {
             $num = intval($extension);
             
-            // Refus de la plage 100 à 199 (réservée)
-            if ($num >= 100 && $num <= 199) {
-                $fail(":input est interdit (plage 100 à 199 réservée).");
+            // Autorisation uniquement de la plage 200 à 999
+            if ($num < 200 || $num > 999) {
+                $fail(":input n'est pas autorisé. Seuls les numéros de 200 à 999 sont autorisés pour les extensions à 3 chiffres.");
                 return;
             }
             
-            // Autorisation de tous les autres formats 3 chiffres (0-99 et 200-999)
-            // OK: format 3 chiffres accepté
+            // OK: format 3 chiffres accepté (200-999)
         }
         // Règles spécifiques pour 4 chiffres
         elseif (strlen($extension) === 4) {
@@ -61,7 +60,7 @@ class ValidExtensionYeastar implements ValidationRule
         }
         // Format invalide si ce n'est ni 3, ni 4, ni 5 chiffres (03XXX)
         else {
-            $fail(":input a un format invalide. Utilisez 3 chiffres, 4 chiffres (1001–2999 ou 4000–5999) ou 03XXX pour 3XXX.");
+            $fail(":input a un format invalide. Utilisez 3 chiffres (200–999), 4 chiffres (1001–2999 ou 4000–5999) ou 03XXX pour 3XXX.");
             return;
         }
 
