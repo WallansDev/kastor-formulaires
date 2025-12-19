@@ -91,13 +91,13 @@ Route::prefix('/pbx/yeastar')->group(function () {
         return redirect()->route('yeastar.general_info')->with('info', 'Session réinitialisée.');
     })->name('yeastar.reset');
     });
-    
-
 
 
 
 
 // Debug
-Route::view('/formulaire/session', 'debug.session')->name('debug.session');
-// Route::view('/formulaire/contact', 'emails.yeastar')->name('wildix.emails.contact');
-// Route::view('/formulaire/pdf', 'pdf.yeastar')->name('debug.pdf');
+// Route::view('/formulaire/session', 'debug.session')->name('debug.session');
+// Route::view('/formulaire/contact/yeastar', 'emails.yeastar')->name('yeastar.emails.contact');
+// Route::view('/formulaire/contact/wildix', 'emails.wildix')->name('wildix.emails.contact');
+// Route::view('/formulaire/pdf/yeastar', 'pdf.yeastar')->name('debug.pdf');
+// Route::view('/formulaire/pdf/wildix', 'pdf.wildix')->name('debug.pdf');
