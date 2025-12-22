@@ -46,15 +46,15 @@ class ValidExtensionYeastar implements ValidationRule
             $num = intval($extension);
 
             // Refus 3000–3999 avec recommandation d'utiliser 03XXX
-            if ($num >= 3000 && $num <= 3999) {
-                $fail(":input est interdit (plage 3000 à 3999 réservée). Pour cette plage, utilisez le format 03XXX.");
-                return;
-            }
+            // if ($num >= 3000 && $num <= 3999) {
+            //     $fail(":input est interdit (plage 3000 à 3999 réservée). Pour cette plage, utilisez le format 03XXX.");
+            //     return;
+            // }
 
             // Autorisations: 1001–2999 et 4000–5999
-            $inAllowedRange = ($num >= 1001 && $num <= 2999) || ($num >= 4000 && $num <= 5999);
+            $inAllowedRange = ($num >= 1001 && $num <= 5999);
             if (!$inAllowedRange) {
-                $fail(":input n'est pas autorisé. Plages autorisées: 1001–2999 et 4000–5999 (ou 03XXX pour la plage 3XXX).");
+                $fail(":input n'est pas autorisé. Plages autorisées: 1001–5999 (ou 03XXX pour la plage 3XXX).");
                 return;
             }
         }

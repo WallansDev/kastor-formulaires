@@ -32,16 +32,17 @@
                     <br>
                     <ul>
                         <li>3 chiffres : tout sauf 100 à 199 (inclus).</li>
-                        <li>4 chiffres : 1001 à 2999 et 4000 à 5999</li>
+                        <li>4 chiffres : 1001 à 5999.</li>
                     </ul>
                 </small>
                 <small><i><u>Numéros indisponibles :</u></i>
                     <br>
                     <ul class="mb-2">
-                        <li>4 chiffres : 3000 à 3999 (inclus) & 2222.</li>
+                        <li>3 chiffres : 100 à 199 (inclus).</li>
+                        <li>4 chiffres : 2222.</li>
                     </ul>
-                    <p><i><b>NB : </b>Pour utiliser la plage 3XXX, l'ajout d'un préfixe '0' est nécessaire. Exemple :
-                            03XXX</i></p>
+                    <p><i><b>NB :</b> Pour la plage 3XXX, Il faudra utiliser le préfixe « 0 » pour tout appel externe (ex:
+                            03XXX).</i></p>
                 </small>
                 <br>
                 <small class="">
