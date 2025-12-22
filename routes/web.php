@@ -5,6 +5,7 @@ use App\Http\Controllers\WildixFormController;
 use App\Http\Controllers\YeastarFormController;
 
 Route::view('/', 'home')->name('home');
+Route::view('/8cbffd67cd71ad6da41f3e3ce14198affc72cf262de25305007aa80d955996a3', 'easter-egg')->name('easter-egg');
 
 Route::prefix('/pbx/wildix')->group(function () {
 Route::get('/general-info', [WildixFormController::class, 'generalInfo'])->name('wildix.general_info');

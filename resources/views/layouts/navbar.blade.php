@@ -1,7 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
         <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
-            <img src="{{ asset('images/kastor.png') }}" alt="Logo" width="60" height="60" class="me-2">
+            <img id="kastor-logo" src="{{ asset('images/kastor.png') }}" alt="Logo" width="60" height="60"
+                class="me-2">
             {{ strtoupper(config('app.name', 'Kastor Formulaires')) }}
         </a>
 

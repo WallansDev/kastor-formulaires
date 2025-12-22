@@ -79,3 +79,20 @@ a,
 a:hover {
   color: #3498db;
 }
+
+/* Petit carré cliquable en bas à droite (easter egg) */
+.easter-egg-square {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  width: 14px;
+  height: 14px;
+  background-color: white;
+  border-radius: 2px;
+  opacity: 0.4;
+  z-index: 9999;
+}
+
+.easter-egg-square:hover {
+  opacity: 0.8;
+}
