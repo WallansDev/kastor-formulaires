@@ -85,19 +85,30 @@ class WildixFormController extends Controller
         if ($action === 'ajouter_porte') {
             $validated = $request->validate(
                 [
-                    'numero_porte' => ['required', 'string', 'regex:/^\+33(1|2|3|4|5|8|9)\d{8}$/'],
+                    'numero_porte' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            // Accepter +33, 0X XX XX XX XX, ou 0XXXXXXXXX
+                            if (!preg_match('/^(\+33(1|2|3|4|5|8|9)\d{8}|0(1|2|3|4|5|8|9)(\s?\d{2}){4}|0(1|2|3|4|5|8|9)\d{8})$/', $value)) {
+                                $fail('Le numéro porté doit être au format +33XXXXXXXXX, 0X XX XX XX XX ou 0XXXXXXXXX (+330, +336, +337 interdit !).');
+                            }
+                        },
+                    ],
                 ],
                 [
                     'numero_porte.required' => 'Le numéro porté est obligatoire.',
-                    'numero_porte.regex' => 'Le numéro porté doit être au format +33 suivi de 9 chiffres (+330, +336, +337 interdit !).',
                 ],
             );
+
+            // Normaliser le numéro en format +33
+            $numeroNormalise = $this->normaliserNumero($validated['numero_porte']);
 
             $portes = session()->get('form_wildix.numeros.portes', []);
 
             // Vérification unicité dans la session
             foreach ($portes as $porte) {
-                if ($porte['numero'] === $validated['numero_porte']) {
+                if ($porte['numero'] === $numeroNormalise) {
                     return back()
                         ->withErrors(['numero_porte' => 'Ce numéro est déjà dans la liste.'])
                         ->withInput();
@@ -105,7 +116,7 @@ class WildixFormController extends Controller
             }
 
             $portes[] = [
-                'numero' => $validated['numero_porte'],
+                'numero' => $numeroNormalise,
                 'provisoire' => null,
             ];
 
@@ -116,20 +127,30 @@ class WildixFormController extends Controller
         elseif ($action === 'ajouter_provisoire') {
             $validated = $request->validate(
                 [
-                    'numero_provisoire' => ['required', 'regex:/^\+33(1|2|3|4|5|8|9)\d{8}$/'],
+                    'numero_provisoire' => [
+                        'required',
+                        function ($attribute, $value, $fail) {
+                            // Accepter +33, 0X XX XX XX XX, ou 0XXXXXXXXX
+                            if (!preg_match('/^(\+33(1|2|3|4|5|8|9)\d{8}|0(1|2|3|4|5|8|9)(\s?\d{2}){4}|0(1|2|3|4|5|8|9)\d{8})$/', $value)) {
+                                $fail('Le numéro provisoire doit être au format +33XXXXXXXXX, 0X XX XX XX XX ou 0XXXXXXXXX (+330, +336, +337 interdit !).');
+                            }
+                        },
+                    ],
                     'porte_selectionne' => ['required', 'string'],
                 ],
                 [
                     'numero_provisoire.required' => 'Le numéro provisoire est obligatoire.',
-                    'numero_provisoire.regex' => 'Le numéro provisoire doit être au format +33 suivi de 9 chiffres (+330, +336, +337 interdit !).',
                     'porte_selectionne.required' => 'Vous devez sélectionner un numéro porté existant.',
                 ],
             );
 
+            // Normaliser le numéro en format +33
+            $numeroNormalise = $this->normaliserNumero($validated['numero_provisoire']);
+
             $portes = session()->get('form_wildix.numeros.portes', []);
 
             // Vérifier si ce numéro existe déjà dans les numéros portés ou en tant que provisoire
-            $portes_exists = collect($portes)->pluck('numero')->contains($validated['numero_provisoire']) || collect($portes)->pluck('provisoire')->contains($validated['numero_provisoire']);
+            $portes_exists = collect($portes)->pluck('numero')->contains($numeroNormalise) || collect($portes)->pluck('provisoire')->contains($numeroNormalise);
 
             if ($portes_exists) {
                 return back()
@@ -139,7 +160,7 @@ class WildixFormController extends Controller
 
             foreach ($portes as &$porte) {
                 if ($porte['numero'] === $validated['porte_selectionne']) {
-                    $porte['provisoire'] = $validated['numero_provisoire'];
+                    $porte['provisoire'] = $numeroNormalise;
                     break;
                 }
             }
@@ -688,6 +709,26 @@ class WildixFormController extends Controller
         }
         
         return view('wildix.recap', compact('data'));
+    }
+
+    /**
+     * Normalise un numéro de téléphone français au format +33
+     * Accepte : +33XXXXXXXXX, 0X XX XX XX XX, ou 0XXXXXXXXX
+     * 
+     * @param string $numero
+     * @return string
+     */
+    private function normaliserNumero(string $numero): string
+    {
+        // Supprimer les espaces
+        $numero = str_replace(' ', '', $numero);
+        
+        // Si le numéro commence par 0, remplacer par +33
+        if (strpos($numero, '0') === 0) {
+            $numero = '+33' . substr($numero, 1);
+        }
+        
+        return $numero;
     }
 
     private function dropSession()
