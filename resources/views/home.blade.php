@@ -5,20 +5,13 @@
 @section('content')
     <div class="container">
         <div class="col-12 mt-1">
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
         </div>
-        {{-- <div class="row mt-3">
-            <div class="col-4"></div>
-            <div class="col-4">
-                <a href="{{ route('wildix.general-info') }}"><img src="{{ asset('images/formulaire.jpg') }}" class="img-thumbnail"
-                        alt="...">
-                    <h3 class="mt-1" style="text-align:center;">Formulaire Wildix</h3>
-                </a>
-            </div>
-        </div> --}}
     </div>
+    {{-- Petit carré cliquable en bas à droite --}}
+    <a href="{{ route('easter-egg') }}" class="easter-egg-square" aria-label="Accès spécial"></a>
 @endsection
