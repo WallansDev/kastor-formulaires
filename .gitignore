@@ -23,3 +23,4 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 mail.php
+config/mail.php
