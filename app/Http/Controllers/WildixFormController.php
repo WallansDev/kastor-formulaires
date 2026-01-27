@@ -836,7 +836,8 @@ class WildixFormController extends Controller
 
         $mail = config('mail.mail_to');
 
-        Mail::to($mail)->cc($reseller_email)->send(new MailerFormulaireWildix($data));
+        $cc_emails = [$reseller_email, 'emmanuel@kiwi.tel'];
+        Mail::to($mail)->cc($cc_emails)->send(new MailerFormulaireWildix($data));
 
         unlink($path);
 
