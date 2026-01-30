@@ -850,7 +850,7 @@ class YeastarFormController extends Controller
 
         $mail = config('mail.mail_to');
 
-        $cc_emails = [$reseller_email, 'emmanuel@kiwi.tel'];
+        $cc_emails = [$reseller_email, 'arnaud@kiwi.tel', 'adv@kiwi.tel'];
         Mail::to($mail)->cc($cc_emails)->send(new MailerFormulaireYeastar($data));
 
         unlink($path);
