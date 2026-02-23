@@ -266,7 +266,7 @@
 
     <h3>Information(s) supplémentaire(s) et remarque(s)</h3>
     @if (!$infos_remarques || is_null($infos_remarques))
-        Pas d'informations ou remarques supplémeentaires.
+        Pas d'informations ou remarques supplémentaires.
     @else
         <pre
             style="white-space: pre-wrap; font-family: Arial, Helvetica, sans-serif; background-color: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">{{ $infos_remarques }}</pre>
