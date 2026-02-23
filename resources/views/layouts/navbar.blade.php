@@ -16,13 +16,15 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        Formulaires PBX
+                        Formulaires de création de PBX
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{{ route('wildix.general_info') }}"><img
-                                    src="{{ asset('images/wildix.png') }}" width="15%" /> Wildix</a></li>
+                                    src="{{ asset('images/wildix.png') }}" width="15%" /> Je souhaite créer un PBX
+                                Wildix</a></li>
                         <li><a class="dropdown-item" href="{{ route('yeastar.general_info') }}"><img
-                                    src="{{ asset('images/yeastar.png') }}" width="15%" />Yeastar</a></li>
+                                    src="{{ asset('images/yeastar.png') }}" width="15%" /> Je souhaite créer un PBX
+                                Yeastar</a></li>
                     </ul>
                 </li>
             </ul>
