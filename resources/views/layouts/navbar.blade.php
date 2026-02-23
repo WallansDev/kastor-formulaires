@@ -23,7 +23,7 @@
                             <a class="dropdown-item d-flex align-items-center gap-2 py-2"
                                 href="{{ route('wildix.general_info') }}">
                                 <img src="{{ asset('images/wildix.png') }}" height="20" alt="Wildix">
-                                Je souhaites créer un PBX Wildix
+                                Je souhaites créer un PBX WILDIX
                             </a>
                         </li>
                         <li>
@@ -33,7 +33,7 @@
                             <a class="dropdown-item d-flex align-items-center gap-2 py-2"
                                 href="{{ route('yeastar.general_info') }}">
                                 <img src="{{ asset('images/yeastar.png') }}" height="20" alt="Yeastar">
-                                Je souhaites créer un PBX Yeastar
+                                Je souhaites créer un PBX VOKALISE
                             </a>
                         </li>
                     </ul>
